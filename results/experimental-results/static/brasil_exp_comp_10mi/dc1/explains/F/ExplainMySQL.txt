@@ -1,0 +1,5 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid LIMIT 1;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 9927796, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 9927796, 1.0, 'Using where; Using join buffer (hash join)')

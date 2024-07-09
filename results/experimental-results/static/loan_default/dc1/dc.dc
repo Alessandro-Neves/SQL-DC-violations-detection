@@ -1,0 +1,1 @@
+t1.age > t2.age,t1.income = t2.income,t1.loan_amount = t2.loan_amount,t1.loan_term < t2.loan_term

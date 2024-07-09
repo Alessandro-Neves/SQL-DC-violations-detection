@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid);
+
+Explain:
+                      union
+                      card 2'374'041
+
+    leftsemi join (hash)          leftsemi join (hash)
+    card 1'318'912                card 1'318'912
+    pm = pm15 & tid <...          pm35 = pm25 & tid...
+
+tablescan      tablescan      tablescan      tablescan
+t              t              t              t
+card 1'318'912 card 1'318'912 card 1'318'912 card 1'318'912
+tid isn...     tid isn...

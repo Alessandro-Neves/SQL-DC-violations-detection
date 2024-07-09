@@ -1,0 +1,11 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 6, 4, 5, 10, 50, 850045), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 6, 4, 5, 10, 50, 850045), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 272114.125, 'SELECT Q2.TID AS "ID1", Q1.TID AS "ID2" FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q2.TID <> Q1.TID) AND (Q2.TOTAL_PAY < Q1.TOTAL_PAY) AND (Q1.OTHER_PAY < Q2.OTHER_PAY) AND (Q1.OVERTIME_PAY < Q2.OVERTIME_PAY) AND (Q1.BASE_PAY < Q2.BASE_PAY)', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 6, 4, 5, 10, 50, 850045), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 272114.125, 9242.0, 2794257645568.0, 25.801939010620117, 268039.53125, 4621.0, 2794229071872.0, 0.0, 0.0, 9242.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 5, 10, 50, 850045), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'NLJOIN', 272114.125, 9242.0, 2794257645568.0, 25.801939010620117, 268039.53125, 4621.0, 2794229071872.0, 0.0, 0.0, 9242.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 5, 10, 50, 850045), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'TBSCAN', 4079.10009765625, 4621.0, 76321896.0, 6.769941806793213, 4.510174751281738, 0.0, 47742448.0, 0.0, 0.0, 4621.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 5, 10, 50, 850045), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 4084.11083984375, 4621.0, 129364064.0, 19.031997680664062, 9.521007537841797, 0.0, 100784616.0, 0.0, 0.0, 4621.0, 0.0, 0.0)

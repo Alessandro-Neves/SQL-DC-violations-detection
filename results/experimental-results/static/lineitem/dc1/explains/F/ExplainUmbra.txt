@@ -1,0 +1,32 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid LIMIT 1;
+
+Explain:
+         sort
+         card 1
+
+     join (hash)
+     card 1'552'507
+     tax15 = ...
+
+tablescan    tablescan
+t            t
+card 152'939 card 152'939
+tid isn...   tid isn...
+
+Exec Plan:
+           sort
+           card     1
+           estimate 1
+           time 0 
+
+       join (hash)
+       card            51
+       estimate 1'552'507
+       tax15 = ...
+
+tablescan        tablescan
+t                t
+card     152'939 card      10'878
+estimate 152'939 estimate 152'939
+time 85 ***      time 15 **
+tid isn...       tid isn...

@@ -1,0 +1,13 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid LIMIT 1;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 974854, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 974854, 8.1, 'Using where; Using join buffer (hash join)')
+
+Exec Plan:
+-> Limit: 1 row(s)  (cost=95e+9 rows=1) (actual time=198188..198188 rows=0 loops=1)
+    -> Filter: ((t1.city <> t2.city) and (t1.tid <> t2.tid))  (cost=95e+9 rows=77e+9) (actual time=198188..198188 rows=0 loops=1)
+        -> Inner hash join (t2.zip = t1.zip)  (cost=95e+9 rows=77e+9) (actual time=53.7..187053 rows=43.9e+6 loops=1)
+            -> Table scan on t2  (cost=0.648 rows=974854) (actual time=0.00981..698 rows=999962 loops=218)
+            -> Hash
+                -> Table scan on t1  (cost=100696 rows=974854) (actual time=0.0221..740 rows=999962 loops=1)

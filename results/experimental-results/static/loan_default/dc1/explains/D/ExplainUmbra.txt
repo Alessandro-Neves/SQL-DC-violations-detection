@@ -1,0 +1,20 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid ;
+
+Explain:
+                union
+                card 352'231
+
+   pipelinebreakerscan    pipelinebreakerscan
+   card 195'684           card 195'684
+
+      temp
+      card 195'684
+
+      join (hash)
+      card 195'684
+      income14...
+
+tablescan    tablescan
+t            t
+card 255'347 card 255'347
+tid isn...   tid isn...

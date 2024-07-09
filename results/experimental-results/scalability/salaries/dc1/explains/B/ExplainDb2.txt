@@ -1,0 +1,12 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 47, 727378), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 47, 727378), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 5633.587890625, 'SELECT Q4.$C0 FROM (SELECT COUNT(* ) FROM (SELECT $RID$ FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q2.TID <> Q1.TID) AND (Q2.TOTAL_PAY < Q1.TOTAL_PAY) AND (Q1.OTHER_PAY < Q2.OTHER_PAY) AND (Q1.OVERTIME_PAY < Q2.OVERTIME_PAY) AND (Q1.BASE_PAY < Q2.BASE_PAY)) AS Q3) AS Q4', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 47, 727378), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 5633.587890625, 922.0, 27810658304.0, 5633.52587890625, 4815.60595703125, 0.0, 27804874752.0, 0.0, 0.0, 922.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 47, 727378), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'GRPBY ', 5633.587890625, 922.0, 27810658304.0, 5633.52587890625, 4815.60595703125, 0.0, 27804874752.0, 0.0, 0.0, 922.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 47, 727378), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'NLJOIN', 5629.5419921875, 922.0, 27787296768.0, 25.733654022216797, 4811.56005859375, 0.0, 27781513216.0, 0.0, 0.0, 922.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 47, 727378), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 409.8153991699219, 461.0, 7652773.0, 6.774060249328613, 0.8246284127235413, 0.0, 4761330.0, 0.0, 0.0, 461.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 47, 727378), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 5, 'TBSCAN', 410.73126220703125, 461.0, 12940920.0, 18.9595947265625, 1.7404977083206177, 0.0, 10049476.0, 0.0, 0.0, 461.0, 0.0, 0.0)

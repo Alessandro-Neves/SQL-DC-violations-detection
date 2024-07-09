@@ -1,0 +1,22 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid ;
+
+Explain:
+(1, 'PRIMARY', 't1', None, 'ALL', None, None, None, None, 1312597, 100.0, None)
+(1, 'PRIMARY', 't2', None, 'ALL', None, None, None, None, 1312597, 1.0, 'Using where; Using join buffer (hash join)')
+(2, 'UNION', 't1', None, 'ALL', None, None, None, None, 1312597, 100.0, None)
+(2, 'UNION', 't2', None, 'ALL', None, None, None, None, 1312597, 1.0, 'Using where; Using join buffer (hash join)')
+(3, 'UNION RESULT', '<union1,2>', None, 'ALL', None, None, None, None, None, None, 'Using temporary')
+
+Exec Plan:
+-> Table scan on <union temporary>  (cost=348e+9..348e+9 rows=34.5e+9) (actual time=6005..6006 rows=13128 loops=1)
+    -> Union materialize with deduplication  (cost=348e+9..348e+9 rows=34.5e+9) (actual time=6005..6005 rows=13128 loops=1)
+        -> Filter: ((t1.coolant > t2.coolant) and (t1.stator_tooth < t2.stator_tooth) and (t1.tid <> t2.tid))  (cost=172e+9 rows=17.2e+9) (actual time=1223..3199 rows=6628 loops=1)
+            -> Inner hash join (t2.pm = t1.pm)  (cost=172e+9 rows=17.2e+9) (actual time=1132..3130 rows=1.35e+6 loops=1)
+                -> Table scan on t2  (cost=0.653 rows=1.31e+6) (actual time=0.026..904 rows=1.32e+6 loops=1)
+                -> Hash
+                    -> Table scan on t1  (cost=136410 rows=1.31e+6) (actual time=0.599..895 rows=1.32e+6 loops=1)
+        -> Filter: ((t1.coolant > t2.coolant) and (t1.stator_tooth < t2.stator_tooth) and (t1.tid <> t2.tid))  (cost=172e+9 rows=17.2e+9) (actual time=1019..2800 rows=6628 loops=1)
+            -> Inner hash join (t2.pm = t1.pm)  (cost=172e+9 rows=17.2e+9) (actual time=927..2733 rows=1.35e+6 loops=1)
+                -> Table scan on t2  (cost=0.653 rows=1.31e+6) (actual time=0.0255..722 rows=1.32e+6 loops=1)
+                -> Hash
+                    -> Table scan on t1  (cost=136410 rows=1.31e+6) (actual time=0.0221..721 rows=1.32e+6 loops=1)

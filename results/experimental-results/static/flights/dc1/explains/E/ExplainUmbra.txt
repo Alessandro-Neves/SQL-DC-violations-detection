@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid);
+
+Explain:
+                 union
+                 card 164'136
+
+ leftsemi join (hash)    leftsemi join (hash)
+ card 91'187             card 91'187
+ destination = des...    destination48 = d...
+
+tablescan   tablescan   tablescan   tablescan
+t           t           t           t
+card 91'187 card 91'187 card 91'187 card 91'187
+tid isn...  tid isn...

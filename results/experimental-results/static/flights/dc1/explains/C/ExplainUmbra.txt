@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.origin, t2.origin, t1.destination, t2.destination, t1.flights, t2.flights, t1.passengers, t2.passengers HAVING t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid;
+
+Explain:
+    groupby
+    card 18'112'756
+
+    join (hash)
+    card 20'125'285
+    destinat...
+
+tablescan   tablescan
+t           t
+card 91'187 card 91'187
+tid isn...  tid isn...

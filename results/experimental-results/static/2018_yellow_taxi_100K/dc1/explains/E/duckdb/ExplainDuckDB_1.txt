@@ -1,0 +1,125 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid);
+
+Explain:
+┌───────────────────────────┐                                                                                       
+│       HASH_GROUP_BY       │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│         PROJECTION        │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│           UNION           ├───────────────────────────────────────────┐                                           
+└─────────────┬─────────────┘                                           │                                                                        
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│         PROJECTION        │                             │         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            tid            │                             │            tid            │                             
+└─────────────┬─────────────┘                             └─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│      NESTED_LOOP_JOIN     │                             │      NESTED_LOOP_JOIN     │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            SEMI           │                             │            SEMI           │                             
+│         tid != tid        │                             │         tid != tid        │                             
+│  tpep_dropoff_datetime <  │                             │   tpep_pickup_datetime >  │                             
+│    tpep_dropoff_datetime  ├──────────────┐              │    tpep_pickup_datetime   ├──────────────┐              
+│   tpep_pickup_datetime >  │              │              │  tpep_dropoff_datetime <  │              │              
+│    tpep_pickup_datetime   │              │              │    tpep_dropoff_datetime  │              │              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│           EC: 0           │              │              │           EC: 0           │              │              
+│          Cost: 0          │              │              │          Cost: 0          │              │              
+└─────────────┬─────────────┘              │              └─────────────┬─────────────┘              │                                           
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│             t             ││             t             ││             t             ││             t             │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│    tpep_pickup_datetime   ││   tpep_dropoff_datetime   ││   tpep_dropoff_datetime   ││    tpep_pickup_datetime   │
+│   tpep_dropoff_datetime   ││    tpep_pickup_datetime   ││    tpep_pickup_datetime   ││   tpep_dropoff_datetime   │
+│            tid            ││            tid            ││            tid            ││            tid            │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│           EC: 0           ││           EC: 0           ││           EC: 0           ││           EC: 0           │
+└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘                             
+
+
+Exec Plan:
+┌─────────────────────────────────────┐
+│┌───────────────────────────────────┐│
+││    Query Profiling Information    ││
+│└───────────────────────────────────┘│
+└─────────────────────────────────────┘
+EXPLAIN ANALYZE SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid);
+┌─────────────────────────────────────┐
+│┌───────────────────────────────────┐│
+││        Total Time: 0.0595s        ││
+│└───────────────────────────────────┘│
+└─────────────────────────────────────┘
+┌───────────────────────────┐                                                                                       
+│      EXPLAIN_ANALYZE      │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             0             │                                                                                       
+│          (0.00s)          │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│       HASH_GROUP_BY       │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│           100000          │                                                                                       
+│          (0.05s)          │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│         PROJECTION        │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│           200000          │                                                                                       
+│          (0.00s)          │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│           UNION           │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             0             ├───────────────────────────────────────────┐                                           
+│          (0.00s)          │                                           │                                           
+└─────────────┬─────────────┘                                           │                                                                        
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│         PROJECTION        │                             │         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            tid            │                             │            tid            │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│           100000          │                             │           100000          │                             
+│          (0.00s)          │                             │          (0.00s)          │                             
+└─────────────┬─────────────┘                             └─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│      NESTED_LOOP_JOIN     │                             │      NESTED_LOOP_JOIN     │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            SEMI           │                             │            SEMI           │                             
+│         tid != tid        │                             │         tid != tid        │                             
+│  tpep_dropoff_datetime <  │                             │   tpep_pickup_datetime >  │                             
+│    tpep_dropoff_datetime  │                             │    tpep_pickup_datetime   │                             
+│   tpep_pickup_datetime >  │                             │  tpep_dropoff_datetime <  │                             
+│    tpep_pickup_datetime   ├──────────────┐              │    tpep_dropoff_datetime  ├──────────────┐              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│           EC: 0           │              │              │           EC: 0           │              │              
+│          Cost: 0          │              │              │          Cost: 0          │              │              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│           100000          │              │              │           100000          │              │              
+│          (0.02s)          │              │              │          (0.02s)          │              │              
+└─────────────┬─────────────┘              │              └─────────────┬─────────────┘              │                                           
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│             t             ││             t             ││             t             ││             t             │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│    tpep_pickup_datetime   ││   tpep_dropoff_datetime   ││   tpep_dropoff_datetime   ││    tpep_pickup_datetime   │
+│   tpep_dropoff_datetime   ││    tpep_pickup_datetime   ││    tpep_pickup_datetime   ││   tpep_dropoff_datetime   │
+│            tid            ││            tid            ││            tid            ││            tid            │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│           EC: 0           ││           EC: 0           ││           EC: 0           ││           EC: 0           │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│           100000          ││           100000          ││           100000          ││           100000          │
+│          (0.00s)          ││          (0.00s)          ││          (0.00s)          ││          (0.00s)          │
+└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘                             

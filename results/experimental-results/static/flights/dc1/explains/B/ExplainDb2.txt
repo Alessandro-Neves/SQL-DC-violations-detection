@@ -1,0 +1,12 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 6, 32, 424434), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 6, 32, 424434), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 100637.4765625, 'SELECT Q4.$C0 FROM (SELECT COUNT(* ) FROM (SELECT $RID$ FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q2.TID <> Q1.TID) AND (Q2.PASSENGERS < Q1.PASS ... (4 characters truncated) ... RS) AND (Q1.FLIGHTS < Q2.FLIGHTS) AND (VARCHAR(Q2.DESTINATION) = VARCHAR(Q1.DESTINATION)) AND (VARCHAR(Q2.ORIGIN) = VARCHAR(Q1.ORIGIN))) AS Q3) AS Q4', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 6, 32, 424434), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 100637.4765625, 6670.0, 1003103191040.0, 100635.375, 97697.796875, 3335.0, 1003082547200.0, 0.0, 0.0, 6670.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 6, 32, 424434), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'GRPBY ', 100637.4765625, 6670.0, 1003103191040.0, 100635.375, 97697.796875, 3335.0, 1003082547200.0, 0.0, 0.0, 6670.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 6, 32, 424434), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'NLJOIN', 100636.3203125, 6670.0, 1003090935808.0, 1046.0684814453125, 97696.640625, 3335.0, 1003070291968.0, 0.0, 0.0, 6670.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 6, 32, 424434), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 2942.386962890625, 3335.0, 49349072.0, 6.769941806793213, 2.712449312210083, 0.0, 28712628.0, 0.0, 0.0, 3335.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 6, 32, 424434), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 5, 'TBSCAN', 2945.357421875, 3335.0, 80794832.0, 1039.298583984375, 5.6830949783325195, 0.0, 60158396.0, 0.0, 0.0, 3335.0, 0.0, 0.0)

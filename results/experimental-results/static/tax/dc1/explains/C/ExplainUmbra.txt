@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.city, t2.city, t1.zip, t2.zip HAVING t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid;
+
+Explain:
+     groupby
+     card 36'703'101
+
+     join (hash)
+     card 40'781'224
+     zip19 = ...
+
+tablescan    tablescan
+t            t
+card 999'962 card 999'962
+tid isn...   tid isn...

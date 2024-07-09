@@ -1,0 +1,22 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid ;
+
+Explain:
+(1, 'PRIMARY', 't1', None, 'ALL', None, None, None, None, 993809, 100.0, None)
+(1, 'PRIMARY', 't2', None, 'ALL', None, None, None, None, 993809, 1.0, 'Using where; Using join buffer (hash join)')
+(2, 'UNION', 't1', None, 'ALL', None, None, None, None, 993809, 100.0, None)
+(2, 'UNION', 't2', None, 'ALL', None, None, None, None, 993809, 1.0, 'Using where; Using join buffer (hash join)')
+(3, 'UNION RESULT', '<union1,2>', None, 'ALL', None, None, None, None, None, None, 'Using temporary')
+
+Exec Plan:
+-> Table scan on <union temporary>  (cost=200e+9..200e+9 rows=19.7e+9) (actual time=232331..232332 rows=9859 loops=1)
+    -> Union materialize with deduplication  (cost=200e+9..200e+9 rows=19.7e+9) (actual time=232331..232331 rows=9859 loops=1)
+        -> Filter: ((t1.co_unid < t2.co_unid) and (t1.co_via > t2.co_via) and (t1.tid <> t2.tid))  (cost=98.8e+9 rows=9.87e+9) (actual time=4697..116686 rows=11178 loops=1)
+            -> Inner hash join (t2.co_ncm = t1.co_ncm)  (cost=98.8e+9 rows=9.87e+9) (actual time=1175..60934 rows=922e+6 loops=1)
+                -> Table scan on t2  (cost=0.649 rows=993809) (actual time=10.7..1251 rows=1e+6 loops=1)
+                -> Hash
+                    -> Table scan on t1  (cost=104336 rows=993809) (actual time=0.74..947 rows=1e+6 loops=1)
+        -> Filter: ((t1.co_unid < t2.co_unid) and (t1.co_via > t2.co_via) and (t1.tid <> t2.tid))  (cost=98.8e+9 rows=9.87e+9) (actual time=5139..115630 rows=11178 loops=1)
+            -> Inner hash join (t2.co_ncm = t1.co_ncm)  (cost=98.8e+9 rows=9.87e+9) (actual time=2204..60675 rows=922e+6 loops=1)
+                -> Table scan on t2  (cost=0.649 rows=993809) (actual time=0.0268..748 rows=1e+6 loops=1)
+                -> Hash
+                    -> Table scan on t1  (cost=104336 rows=993809) (actual time=4.29..2016 rows=1e+6 loops=1)

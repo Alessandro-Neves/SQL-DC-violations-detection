@@ -1,0 +1,20 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid);
+
+Explain:
+(1, 'PRIMARY', 't1', None, 'ALL', None, None, None, None, 2161652, 100.0, None)
+(1, 'PRIMARY', 't2', None, 'ALL', None, None, None, None, 2161652, 2.7, 'Using where; FirstMatch(t1); Using join buffer (hash join)')
+(3, 'UNION', 't2', None, 'ALL', None, None, None, None, 2161652, 100.0, None)
+(3, 'UNION', 't1', None, 'ALL', None, None, None, None, 2161652, 2.7, 'Using where; FirstMatch(t2); Using join buffer (hash join)')
+(5, 'UNION RESULT', '<union1,3>', None, 'ALL', None, None, None, None, None, None, 'Using temporary')
+
+Exec Plan:
+-> Table scan on <union temporary>  (cost=960e+9..963e+9 rows=252e+9) (actual time=28303..28304 rows=21855 loops=1)
+    -> Union materialize with deduplication  (cost=960e+9..960e+9 rows=252e+9) (actual time=28303..28303 rows=21855 loops=1)
+        -> Hash semijoin (t2.job = t1.job), extra conditions: (t1.borough <> t2.borough) and (t1.lot > t2.lot) and (t1.tid <> t2.tid)  (cost=467e+9 rows=126e+9) (actual time=2669..9839 rows=7180 loops=1)
+            -> Table scan on t1  (cost=233241 rows=2.16e+6) (actual time=17.6..2149 rows=2.18e+6 loops=1)
+            -> Hash
+                -> Table scan on t2  (cost=338950 rows=2.16e+6) (actual time=0.62..1865 rows=2.18e+6 loops=1)
+        -> Hash semijoin (t1.job = t2.job), extra conditions: (t1.borough <> t2.borough) and (t1.lot > t2.lot) and (t1.tid <> t2.tid)  (cost=467e+9 rows=126e+9) (actual time=10989..18449 rows=14686 loops=1)
+            -> Table scan on t2  (cost=233241 rows=2.16e+6) (actual time=7.1..2259 rows=2.18e+6 loops=1)
+            -> Hash
+                -> Table scan on t1  (cost=338950 rows=2.16e+6) (actual time=12.3..10258 rows=2.18e+6 loops=1)

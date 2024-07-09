@@ -1,0 +1,96 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid;
+
+Explain:
+┌───────────────────────────┐                             
+│         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            id1            │                             
+│            id2            │                             
+└─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             
+│          IE_JOIN          │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│           INNER           │                             
+│   total_pay < total_pay   │                             
+│   other_pay > other_pay   │                             
+│overtime_pay > overtime_pay├──────────────┐              
+│    base_pay > base_pay    │              │              
+│         tid != tid        │              │              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│         EC: 100000        │              │              
+│        Cost: 100000       │              │              
+└─────────────┬─────────────┘              │                                           
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│             t             ││             t             │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│          base_pay         ││          base_pay         │
+│        overtime_pay       ││        overtime_pay       │
+│         other_pay         ││         other_pay         │
+│         total_pay         ││         total_pay         │
+│            tid            ││            tid            │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│         EC: 100000        ││         EC: 100000        │
+└───────────────────────────┘└───────────────────────────┘                             
+
+
+Exec Plan:
+┌─────────────────────────────────────┐
+│┌───────────────────────────────────┐│
+││    Query Profiling Information    ││
+│└───────────────────────────────────┘│
+└─────────────────────────────────────┘
+EXPLAIN ANALYZE SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid;
+┌─────────────────────────────────────┐
+│┌───────────────────────────────────┐│
+││         Total Time: 78.43s        ││
+│└───────────────────────────────────┘│
+└─────────────────────────────────────┘
+┌───────────────────────────┐                             
+│      EXPLAIN_ANALYZE      │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│             0             │                             
+│          (0.00s)          │                             
+└─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             
+│         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            id1            │                             
+│            id2            │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            4744           │                             
+│          (0.00s)          │                             
+└─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             
+│          IE_JOIN          │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│           INNER           │                             
+│   total_pay < total_pay   │                             
+│   other_pay > other_pay   │                             
+│overtime_pay > overtime_pay│                             
+│    base_pay > base_pay    │                             
+│         tid != tid        ├──────────────┐              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│         EC: 100000        │              │              
+│        Cost: 100000       │              │              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│            4744           │              │              
+│          (78.40s)         │              │              
+└─────────────┬─────────────┘              │                                           
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│             t             ││             t             │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│          base_pay         ││          base_pay         │
+│        overtime_pay       ││        overtime_pay       │
+│         other_pay         ││         other_pay         │
+│         total_pay         ││         total_pay         │
+│            tid            ││            tid            │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│         EC: 100000        ││         EC: 100000        │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│           100000          ││           100000          │
+│          (0.00s)          ││          (0.00s)          │
+└───────────────────────────┘└───────────────────────────┘                             

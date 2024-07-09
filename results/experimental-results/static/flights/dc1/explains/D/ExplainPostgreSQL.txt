@@ -1,0 +1,68 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid ;
+
+Explain:
+('HashAggregate  (cost=30686.51..30838.45 rows=15194 width=8)',)
+('  Group Key: t1.tid',)
+('  ->  Gather  (cost=13585.72..30648.53 rows=15194 width=8)',)
+('        Workers Planned: 2',)
+('        ->  Parallel Append  (cost=12585.72..28129.13 rows=6332 width=8)',)
+('              ->  Merge Join  (cost=12585.72..14048.73 rows=4469 width=8)',)
+('                    Merge Cond: ((t1.origin = t2.origin) AND (t1.destination = t2.destination))',)
+('                    Join Filter: ((t1.flights > t2.flights) AND (t1.passengers < t2.passengers) AND (t1.tid <> t2.tid))',)
+('                    ->  Sort  (cost=4025.00..4102.10 rows=30841 width=88)',)
+('                          Sort Key: t1.origin, t1.destination',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..1725.41 rows=30841 width=88)',)
+('                    ->  Materialize  (cost=8560.72..8822.86 rows=52429 width=88)',)
+('                          ->  Sort  (cost=8560.72..8691.79 rows=52429 width=88)',)
+('                                Sort Key: t2.origin, t2.destination',)
+('                                ->  Seq Scan on t t2  (cost=0.00..1941.29 rows=52429 width=88)',)
+('              ->  Merge Join  (cost=12585.72..14048.73 rows=4469 width=8)',)
+('                    Merge Cond: ((t1_1.origin = t2_1.origin) AND (t1_1.destination = t2_1.destination))',)
+('                    Join Filter: ((t1_1.flights > t2_1.flights) AND (t1_1.passengers < t2_1.passengers) AND (t1_1.tid <> t2_1.tid))',)
+('                    ->  Sort  (cost=4025.00..4102.10 rows=30841 width=88)',)
+('                          Sort Key: t1_1.origin, t1_1.destination',)
+('                          ->  Parallel Seq Scan on t t1_1  (cost=0.00..1725.41 rows=30841 width=88)',)
+('                    ->  Materialize  (cost=8560.72..8822.86 rows=52429 width=88)',)
+('                          ->  Sort  (cost=8560.72..8691.79 rows=52429 width=88)',)
+('                                Sort Key: t2_1.origin, t2_1.destination',)
+('                                ->  Seq Scan on t t2_1  (cost=0.00..1941.29 rows=52429 width=88)',)
+
+Exec Plan:
+HashAggregate  (cost=30686.51..30838.45 rows=15194 width=8) (actual time=1724.479..1726.749 rows=909 loops=1)
+  Group Key: t1.tid
+  Batches: 1  Memory Usage: 849kB
+  ->  Gather  (cost=13585.72..30648.53 rows=15194 width=8) (actual time=289.545..1726.150 rows=1756 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        ->  Parallel Append  (cost=12585.72..28129.13 rows=6332 width=8) (actual time=490.941..1196.824 rows=585 loops=3)
+              ->  Merge Join  (cost=12585.72..14048.73 rows=4469 width=8) (actual time=364.863..857.227 rows=439 loops=2)
+                    Merge Cond: ((t1.origin = t2.origin) AND (t1.destination = t2.destination))
+                    Join Filter: ((t1.flights > t2.flights) AND (t1.passengers < t2.passengers) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 2566760
+                    ->  Sort  (cost=4025.00..4102.10 rows=30841 width=88) (actual time=121.666..131.427 rows=45594 loops=2)
+                          Sort Key: t1.origin, t1.destination
+                          Sort Method: quicksort  Memory: 25kB
+                          Worker 0:  Sort Method: external merge  Disk: 3760kB
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..1725.41 rows=30841 width=88) (actual time=0.007..13.097 rows=45594 loops=2)
+                    ->  Materialize  (cost=8560.72..8822.86 rows=52429 width=88) (actual time=234.102..494.648 rows=5134398 loops=1)
+                          ->  Sort  (cost=8560.72..8691.79 rows=52429 width=88) (actual time=234.099..253.045 rows=91187 loops=1)
+                                Sort Key: t2.origin, t2.destination
+                                Worker 0:  Sort Method: external merge  Disk: 3760kB
+                                ->  Seq Scan on t t2  (cost=0.00..1941.29 rows=52429 width=88) (actual time=0.037..25.419 rows=91187 loops=1)
+              ->  Merge Join  (cost=12585.72..14048.73 rows=4469 width=8) (actual time=371.551..937.944 rows=439 loops=2)
+                    Merge Cond: ((t1_1.origin = t2_1.origin) AND (t1_1.destination = t2_1.destination))
+                    Join Filter: ((t1_1.flights > t2_1.flights) AND (t1_1.passengers < t2_1.passengers) AND (t1_1.tid <> t2_1.tid))
+                    Rows Removed by Join Filter: 2566760
+                    ->  Sort  (cost=4025.00..4102.10 rows=30841 width=88) (actual time=91.554..96.879 rows=45594 loops=2)
+                          Sort Key: t1_1.origin, t1_1.destination
+                          Sort Method: external merge  Disk: 2168kB
+                          Worker 1:  Sort Method: quicksort  Memory: 3348kB
+                          ->  Parallel Seq Scan on t t1_1  (cost=0.00..1725.41 rows=30841 width=88) (actual time=0.015..12.129 rows=45594 loops=2)
+                    ->  Materialize  (cost=8560.72..8822.86 rows=52429 width=88) (actual time=184.339..337.259 rows=2588370 loops=2)
+                          ->  Sort  (cost=8560.72..8691.79 rows=52429 width=88) (actual time=184.336..204.697 rows=91186 loops=2)
+                                Sort Key: t2_1.origin, t2_1.destination
+                                Sort Method: external merge  Disk: 3760kB
+                                Worker 1:  Sort Method: external merge  Disk: 3760kB
+                                ->  Seq Scan on t t2_1  (cost=0.00..1941.29 rows=52429 width=88) (actual time=0.031..19.491 rows=91187 loops=2)
+Planning Time: 0.195 ms
+Execution Time: 1728.500 ms

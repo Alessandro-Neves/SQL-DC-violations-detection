@@ -1,0 +1,11 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid LIMIT 1;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 14, 35, 968272), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid LIMIT 1', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 14, 35, 968272), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 85111.8046875, 'SELECT Q3.ID1 AS "ID1", Q3.ID2 AS "ID2" FROM (SELECT Q1.TID, Q2.TID FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q2.FLIGHTS < Q1.FLIGHTS) AND (Q1.P ... (9 characters truncated) ...  < Q2.PASSENGERS) AND (Q1.TID <> Q2.TID) AND (VARCHAR(Q1.ORIGIN) = VARCHAR(Q2.ORIGIN)) AND (VARCHAR(Q1.DESTINATION) = VARCHAR(Q2.DESTINATION))) AS Q3', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 14, 35, 968272), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 85111.8046875, 6670.0, 838756204544.0, 1045.7413330078125, 79232.453125, 0.0, 838714982400.0, 0.0, 0.0, 6670.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 14, 35, 968272), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'NLJOIN', 85111.8046875, 6670.0, 838756204544.0, 1045.7413330078125, 79232.453125, 0.0, 838714982400.0, 0.0, 0.0, 6670.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 14, 35, 968272), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'TBSCAN', 2942.386962890625, 3335.0, 49349072.0, 6.769941806793213, 2.712449312210083, 0.0, 28712628.0, 0.0, 0.0, 3335.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 14, 35, 968272), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 2944.426513671875, 3335.0, 70938496.0, 1038.971435546875, 4.751977920532227, 0.0, 50302060.0, 0.0, 0.0, 3335.0, 0.0, 0.0)

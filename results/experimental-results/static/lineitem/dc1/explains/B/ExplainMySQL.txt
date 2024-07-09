@@ -1,0 +1,13 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 152939, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 152939, 0.1, 'Using where; Using join buffer (hash join)')
+
+Exec Plan:
+-> Aggregate: count(0)  (cost=2.34e+9 rows=1) (actual time=378..378 rows=1 loops=1)
+    -> Filter: ((t1.discount < t2.discount) and (t1.price > t2.price) and (t1.tid <> t2.tid))  (cost=2.34e+9 rows=23.4e+6) (actual time=134..378 rows=1010 loops=1)
+        -> Inner hash join (t2.tax = t1.tax), (t2.quantity = t1.quantity)  (cost=2.34e+9 rows=23.4e+6) (actual time=131..356 rows=371355 loops=1)
+            -> Table scan on t2  (cost=141e-6 rows=152939) (actual time=0.0317..92.3 rows=152939 loops=1)
+            -> Hash
+                -> Table scan on t1  (cost=15294 rows=152939) (actual time=0.0191..96.3 rows=152939 loops=1)

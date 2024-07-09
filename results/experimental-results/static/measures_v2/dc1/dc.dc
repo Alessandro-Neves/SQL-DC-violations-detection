@@ -1,0 +1,1 @@
+t1.coolant > t2.coolant,t1.stator_tooth < t2.stator_tooth,t1.pm = t2.pm

@@ -1,0 +1,23 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid LIMIT 1;
+
+Explain:
+('Limit  (cost=11282.40..11373.08 rows=1 width=16)',)
+('  ->  Hash Join  (cost=11282.40..16357016.16 rows=180252 width=16)',)
+('        Hash Cond: ((t1.income = t2.income) AND (t1.loan_amount = t2.loan_amount))',)
+('        Join Filter: ((t1.age > t2.age) AND (t1.loan_term < t2.loan_term) AND (t1.tid <> t2.tid))',)
+('        ->  Seq Scan on t t1  (cost=0.00..5455.76 rows=255376 width=40)',)
+('        ->  Hash  (cost=5455.76..5455.76 rows=255376 width=40)',)
+('              ->  Seq Scan on t t2  (cost=0.00..5455.76 rows=255376 width=40)',)
+
+Exec Plan:
+Limit  (cost=11282.40..11373.08 rows=1 width=16) (actual time=106.270..106.272 rows=1 loops=1)
+  ->  Hash Join  (cost=11282.40..16357016.16 rows=180252 width=16) (actual time=106.268..106.270 rows=1 loops=1)
+        Hash Cond: ((t1.income = t2.income) AND (t1.loan_amount = t2.loan_amount))
+        Join Filter: ((t1.age > t2.age) AND (t1.loan_term < t2.loan_term) AND (t1.tid <> t2.tid))
+        Rows Removed by Join Filter: 112
+        ->  Seq Scan on t t1  (cost=0.00..5455.76 rows=255376 width=40) (actual time=0.011..0.073 rows=415 loops=1)
+        ->  Hash  (cost=5455.76..5455.76 rows=255376 width=40) (actual time=105.958..105.958 rows=255347 loops=1)
+              Buckets: 131072  Batches: 4  Memory Usage: 5510kB
+              ->  Seq Scan on t t2  (cost=0.00..5455.76 rows=255376 width=40) (actual time=0.004..43.038 rows=255347 loops=1)
+Planning Time: 0.184 ms
+Execution Time: 108.885 ms

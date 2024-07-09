@@ -1,0 +1,25 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid;
+
+Explain:
+('Nested Loop  (cost=0.00..258644799.82 rows=1105754565 width=16)',)
+('  Join Filter: ((t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime) AND (t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime) AND (t1.tid <> t2.tid))',)
+('  ->  Seq Scan on t t1  (cost=0.00..1637.09 rows=100009 width=24)',)
+('  ->  Materialize  (cost=0.00..2723.14 rows=100009 width=24)',)
+('        ->  Seq Scan on t t2  (cost=0.00..1637.09 rows=100009 width=24)',)
+('JIT:',)
+('  Functions: 8',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Nested Loop  (cost=0.00..258644799.82 rows=1105754565 width=16) (actual time=377.155..1152056.101 rows=1748 loops=1)
+  Join Filter: ((t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime) AND (t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime) AND (t1.tid <> t2.tid))
+  Rows Removed by Join Filter: 9999998252
+  ->  Seq Scan on t t1  (cost=0.00..1637.09 rows=100009 width=24) (actual time=0.014..31.160 rows=100000 loops=1)
+  ->  Materialize  (cost=0.00..2723.14 rows=100009 width=24) (actual time=0.004..7.420 rows=100000 loops=100000)
+        ->  Seq Scan on t t2  (cost=0.00..1637.09 rows=100009 width=24) (actual time=275.201..283.896 rows=100000 loops=1)
+Planning Time: 0.048 ms
+JIT:
+  Functions: 8
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 0.294 ms, Inlining 73.531 ms, Optimization 96.391 ms, Emission 105.296 ms, Total 275.512 ms
+Execution Time: 1152057.685 ms

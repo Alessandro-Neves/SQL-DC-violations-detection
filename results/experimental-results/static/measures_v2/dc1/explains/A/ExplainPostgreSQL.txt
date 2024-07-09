@@ -1,0 +1,33 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid;
+
+Explain:
+('Gather  (cost=30720.68..160418245.12 rows=961709969 width=16)',)
+('  Workers Planned: 2',)
+('  ->  Parallel Hash Join  (cost=29720.68..64246248.22 rows=400712487 width=16)',)
+('        Hash Cond: (t1.pm = t2.pm)',)
+('        Join Filter: ((t1.coolant > t2.coolant) AND (t1.stator_tooth < t2.stator_tooth) AND (t1.tid <> t2.tid))',)
+('        ->  Parallel Seq Scan on t t1  (cost=0.00..19093.86 rows=549586 width=32)',)
+('        ->  Parallel Hash  (cost=19093.86..19093.86 rows=549586 width=32)',)
+('              ->  Parallel Seq Scan on t t2  (cost=0.00..19093.86 rows=549586 width=32)',)
+('JIT:',)
+('  Functions: 12',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Gather  (cost=30720.68..160418245.12 rows=961709969 width=16) (actual time=643.254..874.878 rows=6628 loops=1)
+  Workers Planned: 2
+  Workers Launched: 2
+  ->  Parallel Hash Join  (cost=29720.68..64246248.22 rows=400712487 width=16) (actual time=636.153..818.369 rows=2209 loops=3)
+        Hash Cond: (t1.pm = t2.pm)
+        Join Filter: ((t1.coolant > t2.coolant) AND (t1.stator_tooth < t2.stator_tooth) AND (t1.tid <> t2.tid))
+        Rows Removed by Join Filter: 447329
+        ->  Parallel Seq Scan on t t1  (cost=0.00..19093.86 rows=549586 width=32) (actual time=0.032..60.810 rows=439637 loops=3)
+        ->  Parallel Hash  (cost=19093.86..19093.86 rows=549586 width=32) (actual time=432.161..432.161 rows=439637 loops=3)
+              Buckets: 131072  Batches: 16  Memory Usage: 6240kB
+              ->  Parallel Seq Scan on t t2  (cost=0.00..19093.86 rows=549586 width=32) (actual time=228.533..302.755 rows=439637 loops=3)
+Planning Time: 0.067 ms
+JIT:
+  Functions: 36
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 2.293 ms, Inlining 288.368 ms, Optimization 237.152 ms, Emission 160.149 ms, Total 687.962 ms
+Execution Time: 875.820 ms

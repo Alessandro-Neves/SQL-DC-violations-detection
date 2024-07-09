@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid);
+
+Explain:
+                   union
+                   card 180'000
+
+   leftsemi join (bnl)       leftsemi join (bnl)
+   card 100'000              card 100'000
+   tid <> tid18 & t...       tid52 <> tid35 &...
+
+tablescan    tablescan    tablescan    tablescan
+t            t            t            t
+card 100'000 card 100'000 card 100'000 card 100'000
+tid isn...   tid isn...

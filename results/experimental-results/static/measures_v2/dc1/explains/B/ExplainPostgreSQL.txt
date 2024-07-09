@@ -1,0 +1,37 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid;
+
+Explain:
+('Finalize Aggregate  (cost=65249029.65..65249029.66 rows=1 width=8)',)
+('  ->  Gather  (cost=65249029.44..65249029.65 rows=2 width=8)',)
+('        Workers Planned: 2',)
+('        ->  Partial Aggregate  (cost=65248029.44..65248029.45 rows=1 width=8)',)
+('              ->  Parallel Hash Join  (cost=29720.68..64246248.22 rows=400712487 width=0)',)
+('                    Hash Cond: (t1.pm = t2.pm)',)
+('                    Join Filter: ((t1.coolant > t2.coolant) AND (t1.stator_tooth < t2.stator_tooth) AND (t1.tid <> t2.tid))',)
+('                    ->  Parallel Seq Scan on t t1  (cost=0.00..19093.86 rows=549586 width=32)',)
+('                    ->  Parallel Hash  (cost=19093.86..19093.86 rows=549586 width=32)',)
+('                          ->  Parallel Seq Scan on t t2  (cost=0.00..19093.86 rows=549586 width=32)',)
+('JIT:',)
+('  Functions: 15',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Finalize Aggregate  (cost=65249029.65..65249029.66 rows=1 width=8) (actual time=849.100..885.064 rows=1 loops=1)
+  ->  Gather  (cost=65249029.44..65249029.65 rows=2 width=8) (actual time=848.192..885.042 rows=3 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        ->  Partial Aggregate  (cost=65248029.44..65248029.45 rows=1 width=8) (actual time=828.505..828.508 rows=1 loops=3)
+              ->  Parallel Hash Join  (cost=29720.68..64246248.22 rows=400712487 width=0) (actual time=641.076..828.285 rows=2209 loops=3)
+                    Hash Cond: (t1.pm = t2.pm)
+                    Join Filter: ((t1.coolant > t2.coolant) AND (t1.stator_tooth < t2.stator_tooth) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 447329
+                    ->  Parallel Seq Scan on t t1  (cost=0.00..19093.86 rows=549586 width=32) (actual time=0.033..62.465 rows=439637 loops=3)
+                    ->  Parallel Hash  (cost=19093.86..19093.86 rows=549586 width=32) (actual time=437.352..437.353 rows=439637 loops=3)
+                          Buckets: 131072  Batches: 16  Memory Usage: 6240kB
+                          ->  Parallel Seq Scan on t t2  (cost=0.00..19093.86 rows=549586 width=32) (actual time=234.985..310.803 rows=439637 loops=3)
+Planning Time: 0.096 ms
+JIT:
+  Functions: 41
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 2.429 ms, Inlining 293.539 ms, Optimization 239.643 ms, Emission 171.894 ms, Total 707.506 ms
+Execution Time: 885.720 ms

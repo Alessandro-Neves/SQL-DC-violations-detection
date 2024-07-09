@@ -1,0 +1,11 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 6, 4, 2, 13, 28, 524022), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 6, 4, 2, 13, 28, 524022), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 1272958.125, 'SELECT Q2.TID AS "ID1", Q1.TID AS "ID2" FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q2.TID <> Q1.TID) AND (Q1.LOT < Q2.LOT) AND (Q2.JOB = Q1.JOB) AND (VARCHAR(Q2.BOROUGH) <> VARCHAR(Q1.BOROUGH))', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 6, 4, 2, 13, 28, 524022), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 1272958.125, 258249.9375, 9211948826624.0, 1272958.125, 1272958.125, 258249.9375, 9211948826624.0, 0.0, 0.0, 122999.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 2, 13, 28, 524022), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'HSJOIN', 1272958.125, 258249.9375, 9211948826624.0, 1272958.125, 1272958.125, 258249.9375, 9211948826624.0, 0.0, 0.0, 122999.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 2, 13, 28, 524022), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'TBSCAN', 81680.1484375, 92635.0, 1050620288.0, 6.769941806793213, 81680.1484375, 92635.0, 1050582656.0, 0.0, 0.0, 92635.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 2, 13, 28, 524022), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 81680.1484375, 92635.0, 1050620288.0, 6.769941806793213, 81680.1484375, 92635.0, 1050582656.0, 0.0, 0.0, 92635.0, 0.0, 0.0)

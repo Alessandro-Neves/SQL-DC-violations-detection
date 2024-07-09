@@ -1,0 +1,48 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.origin, t2.origin, t1.destination, t2.destination, t1.flights, t2.flights, t1.passengers, t2.passengers HAVING t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid;
+
+Explain:
+('Finalize HashAggregate  (cost=15719.08..15795.05 rows=7597 width=176)',)
+('  Group Key: t1.tid, t2.tid, t1.origin, t1.destination, t1.flights, t2.flights, t1.passengers, t2.passengers',)
+('  ->  Gather  (cost=15138.11..15629.70 rows=4469 width=176)',)
+('        Workers Planned: 1',)
+('        ->  Partial HashAggregate  (cost=14138.11..14182.80 rows=4469 width=176)',)
+('              Group Key: t1.tid, t2.tid, t1.origin, t1.destination, t1.flights, t2.flights, t1.passengers, t2.passengers',)
+('              ->  Merge Join  (cost=12585.72..14048.73 rows=4469 width=176)',)
+('                    Merge Cond: ((t1.origin = t2.origin) AND (t1.destination = t2.destination))',)
+('                    Join Filter: ((t1.flights > t2.flights) AND (t1.passengers < t2.passengers) AND (t1.tid <> t2.tid))',)
+('                    ->  Sort  (cost=4025.00..4102.10 rows=30841 width=88)',)
+('                          Sort Key: t1.origin, t1.destination',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..1725.41 rows=30841 width=88)',)
+('                    ->  Materialize  (cost=8560.72..8822.86 rows=52429 width=88)',)
+('                          ->  Sort  (cost=8560.72..8691.79 rows=52429 width=88)',)
+('                                Sort Key: t2.origin, t2.destination',)
+('                                ->  Seq Scan on t t2  (cost=0.00..1941.29 rows=52429 width=88)',)
+
+Exec Plan:
+Finalize HashAggregate  (cost=15719.08..15795.05 rows=7597 width=176) (actual time=781.594..781.877 rows=878 loops=1)
+  Group Key: t1.tid, t2.tid, t1.origin, t1.destination, t1.flights, t2.flights, t1.passengers, t2.passengers
+  Batches: 1  Memory Usage: 537kB
+  ->  Gather  (cost=15138.11..15629.70 rows=4469 width=176) (actual time=780.954..781.260 rows=878 loops=1)
+        Workers Planned: 1
+        Workers Launched: 1
+        ->  Partial HashAggregate  (cost=14138.11..14182.80 rows=4469 width=176) (actual time=715.539..715.658 rows=439 loops=2)
+              Group Key: t1.tid, t2.tid, t1.origin, t1.destination, t1.flights, t2.flights, t1.passengers, t2.passengers
+              Batches: 1  Memory Usage: 345kB
+              Worker 0:  Batches: 1  Memory Usage: 249kB
+              ->  Merge Join  (cost=12585.72..14048.73 rows=4469 width=176) (actual time=285.813..715.273 rows=439 loops=2)
+                    Merge Cond: ((t1.origin = t2.origin) AND (t1.destination = t2.destination))
+                    Join Filter: ((t1.flights > t2.flights) AND (t1.passengers < t2.passengers) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 2566760
+                    ->  Sort  (cost=4025.00..4102.10 rows=30841 width=88) (actual time=75.423..79.432 rows=45594 loops=2)
+                          Sort Key: t1.origin, t1.destination
+                          Sort Method: quicksort  Memory: 3959kB
+                          Worker 0:  Sort Method: quicksort  Memory: 3486kB
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..1725.41 rows=30841 width=88) (actual time=0.014..8.574 rows=45594 loops=2)
+                    ->  Materialize  (cost=8560.72..8822.86 rows=52429 width=88) (actual time=124.275..245.710 rows=2575096 loops=2)
+                          ->  Sort  (cost=8560.72..8691.79 rows=52429 width=88) (actual time=124.271..140.325 rows=91186 loops=2)
+                                Sort Key: t2.origin, t2.destination
+                                Sort Method: external merge  Disk: 3760kB
+                                Worker 0:  Sort Method: external merge  Disk: 3760kB
+                                ->  Seq Scan on t t2  (cost=0.00..1941.29 rows=52429 width=88) (actual time=0.028..13.239 rows=91187 loops=2)
+Planning Time: 0.123 ms
+Execution Time: 783.505 ms

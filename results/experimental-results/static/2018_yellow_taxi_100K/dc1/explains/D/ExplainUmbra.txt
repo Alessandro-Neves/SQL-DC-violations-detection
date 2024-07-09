@@ -1,0 +1,48 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid ;
+
+Explain:
+                union
+                card 200'000
+
+   pipelinebreakerscan    pipelinebreakerscan
+   card 3.574216e+09      card 3.574216e+09
+
+    temp
+    card 3.574216e+09
+
+    join (bnl)
+    card 3.574216e+09
+    tpep_dr...
+
+tablescan    tablescan
+t            t
+card 100'000 card 100'000
+tid isn...   tid isn...
+
+Exec Plan:
+                   union
+                   card         886
+                   estimate 200'000
+                   time 0 
+
+      pipelinebreakerscan         pipelinebreakerscan
+      card            1'748       card            1'748
+      estimate 3.574216e+09       estimate 3.574216e+09
+      time 0                      time 0 
+
+      temp
+      card            1'748
+      estimate 3.574216e+09
+      time 0 
+
+      join (bnl)
+      card            1'748
+      estimate 3.574216e+09
+      tpep_dr...
+
+tablescan        tablescan
+t                t
+card     100'000 card     100'000
+estimate 100'000 estimate 100'000
+time 0           time 100 ***
+tid isn...       tid isn...

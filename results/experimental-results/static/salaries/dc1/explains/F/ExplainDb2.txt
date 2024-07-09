@@ -1,0 +1,11 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid LIMIT 1;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 27, 39, 703691), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid LIMIT 1', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 27, 39, 703691), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 219111.921875, 'SELECT Q3.ID1 AS "ID1", Q3.ID2 AS "ID2" FROM (SELECT Q1.TID, Q2.TID FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q2.BASE_PAY < Q1.BASE_PAY) AND (Q2.OVERTIME_PAY < Q1.OVERTIME_PAY) AND (Q2.OTHER_PAY < Q1.OTHER_PAY) AND (Q1.TOTAL_PAY < Q2.TOTAL_PAY) AND (Q1.TID <> Q2.TID)) AS Q3', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 27, 39, 703691), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 219111.921875, 9242.0, 2233202900992.0, 25.79612159729004, 215037.328125, 4621.0, 2233174327296.0, 0.0, 0.0, 9242.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 27, 39, 703691), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'NLJOIN', 219111.921875, 9242.0, 2233202900992.0, 25.79612159729004, 215037.328125, 4621.0, 2233174327296.0, 0.0, 0.0, 9242.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 27, 39, 703691), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'TBSCAN', 4079.10009765625, 4621.0, 76321896.0, 6.769941806793213, 4.510174751281738, 0.0, 47742448.0, 0.0, 0.0, 4621.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 27, 39, 703691), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 4082.19921875, 4621.0, 109126912.0, 19.026180267333984, 7.609228134155273, 0.0, 80547472.0, 0.0, 0.0, 4621.0, 0.0, 0.0)

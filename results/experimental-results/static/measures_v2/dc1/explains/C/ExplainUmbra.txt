@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.coolant, t2.coolant, t1.stator_tooth, t2.stator_tooth, t1.pm, t2.pm HAVING t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid;
+
+Explain:
+      groupby
+      card 1.297818e+10
+
+      join (hash)
+      card 1.442020e+10
+      pm15 = p...
+
+tablescan      tablescan
+t              t
+card 1'318'912 card 1'318'912
+tid isn...     tid isn...

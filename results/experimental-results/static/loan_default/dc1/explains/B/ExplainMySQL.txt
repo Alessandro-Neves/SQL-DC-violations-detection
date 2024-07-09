@@ -1,0 +1,13 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 255347, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 255347, 0.1, 'Using where; Using join buffer (hash join)')
+
+Exec Plan:
+-> Aggregate: count(0)  (cost=6.53e+9 rows=1) (actual time=538..538 rows=1 loops=1)
+    -> Filter: ((t1.age > t2.age) and (t1.loan_term < t2.loan_term) and (t1.tid <> t2.tid))  (cost=6.52e+9 rows=65.2e+6) (actual time=202..538 rows=6315 loops=1)
+        -> Inner hash join (t2.loan_amount = t1.loan_amount), (t2.income = t1.income)  (cost=6.52e+9 rows=65.2e+6) (actual time=202..525 rows=268133 loops=1)
+            -> Table scan on t2  (cost=140e-6 rows=255347) (actual time=0.0217..153 rows=255347 loops=1)
+            -> Hash
+                -> Table scan on t1  (cost=25535 rows=255347) (actual time=0.0176..152 rows=255347 loops=1)

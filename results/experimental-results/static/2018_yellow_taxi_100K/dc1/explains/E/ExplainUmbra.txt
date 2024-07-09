@@ -1,0 +1,32 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid);
+
+Explain:
+                   union
+                   card 180'000
+
+   leftsemi join (bnl)       leftsemi join (bnl)
+   card 100'000              card 100'000
+   tid <> tid7 & tp...       tid19 <> tid13 &...
+
+tablescan    tablescan    tablescan    tablescan
+t            t            t            t
+card 100'000 card 100'000 card 100'000 card 100'000
+tid isn...   tid isn...
+
+Exec Plan:
+                         union
+                         card         886
+                         estimate 180'000
+                         time 0 
+
+       leftsemi join (bnl)               leftsemi join (bnl)
+       card         886                  card         886
+       estimate 100'000                  estimate 100'000
+       tid <> tid7 & tp...               tid19 <> tid13 &...
+
+tablescan        tablescan        tablescan        tablescan
+t                t                t                t
+card     100'000 card     100'000 card     100'000 card     100'000
+estimate 100'000 estimate 100'000 estimate 100'000 estimate 100'000
+time 0           time 41 **       time 0           time 59 ***
+tid isn...       tid isn...

@@ -1,0 +1,54 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid);
+
+Explain:
+('HashAggregate  (cost=117501.57..118441.77 rows=94020 width=8)',)
+('  Group Key: t1.tid',)
+('  ->  Gather  (cost=26728.89..117266.52 rows=94020 width=8)',)
+('        Workers Planned: 2',)
+('        ->  Parallel Append  (cost=25728.89..106864.52 rows=39176 width=8)',)
+('              ->  Parallel Hash Semi Join  (cost=25728.89..53334.32 rows=19588 width=8)',)
+('                    Hash Cond: (t1.co_ncm = t2.co_ncm)',)
+('                    Join Filter: ((t1.co_unid < t2.co_unid) AND (t1.co_via > t2.co_via) AND (t1.tid <> t2.tid))',)
+('                    ->  Parallel Seq Scan on t t1  (cost=0.00..18910.73 rows=352573 width=32)',)
+('                    ->  Parallel Hash  (cost=18910.73..18910.73 rows=352573 width=32)',)
+('                          ->  Parallel Seq Scan on t t2  (cost=0.00..18910.73 rows=352573 width=32)',)
+('              ->  Parallel Hash Semi Join  (cost=25728.89..53334.32 rows=19588 width=8)',)
+('                    Hash Cond: (t2_1.co_ncm = t1_1.co_ncm)',)
+('                    Join Filter: ((t1_1.co_unid < t2_1.co_unid) AND (t1_1.co_via > t2_1.co_via) AND (t1_1.tid <> t2_1.tid))',)
+('                    ->  Parallel Seq Scan on t t2_1  (cost=0.00..18910.73 rows=352573 width=32)',)
+('                    ->  Parallel Hash  (cost=18910.73..18910.73 rows=352573 width=32)',)
+('                          ->  Parallel Seq Scan on t t1_1  (cost=0.00..18910.73 rows=352573 width=32)',)
+('JIT:',)
+('  Functions: 24',)
+('  Options: Inlining false, Optimization false, Expressions true, Deforming true',)
+
+Exec Plan:
+HashAggregate  (cost=117501.57..118441.77 rows=94020 width=8) (actual time=106699.158..106767.908 rows=9859 loops=1)
+  Group Key: t1.tid
+  Batches: 1  Memory Usage: 3601kB
+  ->  Gather  (cost=26728.89..117266.52 rows=94020 width=8) (actual time=855.490..106750.717 rows=9859 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        ->  Parallel Append  (cost=25728.89..106864.52 rows=39176 width=8) (actual time=1484.874..106652.479 rows=3286 loops=3)
+              ->  Parallel Hash Semi Join  (cost=25728.89..53334.32 rows=19588 width=8) (actual time=7213.381..53869.179 rows=8 loops=3)
+                    Hash Cond: (t1.co_ncm = t2.co_ncm)
+                    Join Filter: ((t1.co_unid < t2.co_unid) AND (t1.co_via > t2.co_via) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 307276083
+                    ->  Parallel Seq Scan on t t1  (cost=0.00..18910.73 rows=352573 width=32) (actual time=0.037..264.459 rows=1000000 loops=1)
+                    ->  Parallel Hash  (cost=18910.73..18910.73 rows=352573 width=32) (actual time=248.868..248.868 rows=333333 loops=3)
+                          Buckets: 131072 (originally 131072)  Batches: 16 (originally 8)  Memory Usage: 6304kB
+                          ->  Parallel Seq Scan on t t2  (cost=0.00..18910.73 rows=352573 width=32) (actual time=24.840..251.150 rows=1000000 loops=1)
+              ->  Parallel Hash Semi Join  (cost=25728.89..53334.32 rows=19588 width=8) (actual time=870.110..79172.075 rows=4918 loops=2)
+                    Hash Cond: (t2_1.co_ncm = t1_1.co_ncm)
+                    Join Filter: ((t1_1.co_unid < t2_1.co_unid) AND (t1_1.co_via > t2_1.co_via) AND (t1_1.tid <> t2_1.tid))
+                    Rows Removed by Join Filter: 457674332
+                    ->  Parallel Seq Scan on t t2_1  (cost=0.00..18910.73 rows=352573 width=32) (actual time=0.031..117.487 rows=500000 loops=2)
+                    ->  Parallel Hash  (cost=18910.73..18910.73 rows=352573 width=32) (actual time=540.381..540.381 rows=500000 loops=2)
+                          Buckets: 131072 (originally 131072)  Batches: 16 (originally 8)  Memory Usage: 6304kB
+                          ->  Parallel Seq Scan on t t1_1  (cost=0.00..18910.73 rows=352573 width=32) (actual time=33.293..236.600 rows=500000 loops=2)
+Planning Time: 0.177 ms
+JIT:
+  Functions: 71
+  Options: Inlining false, Optimization false, Expressions true, Deforming true
+  Timing: Generation 5.337 ms, Inlining 0.000 ms, Optimization 3.413 ms, Emission 88.280 ms, Total 97.030 ms
+Execution Time: 106771.895 ms

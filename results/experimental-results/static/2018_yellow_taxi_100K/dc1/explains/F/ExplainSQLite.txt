@@ -1,0 +1,31 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid LIMIT 1;
+
+Explain:
+(0, 'Init', 0, 22, 0, None, 0, None)
+(1, 'Integer', 1, 1, 0, None, 0, None)
+(2, 'OpenRead', 0, 2, 0, '3', 0, None)
+(3, 'OpenRead', 1, 2, 0, '3', 0, None)
+(4, 'Rewind', 0, 21, 0, None, 0, None)
+(5, 'Rewind', 1, 21, 0, None, 0, None)
+(6, 'Column', 0, 1, 2, None, 0, None)
+(7, 'Column', 1, 2, 3, None, 0, None)
+(8, 'Le', 3, 19, 2, 'BINARY-8', 83, None)
+(9, 'Column', 0, 2, 3, None, 0, None)
+(10, 'Column', 1, 1, 2, None, 0, None)
+(11, 'Ge', 2, 19, 3, 'BINARY-8', 83, None)
+(12, 'Column', 0, 0, 2, None, 0, None)
+(13, 'Column', 1, 0, 3, None, 0, None)
+(14, 'Eq', 3, 19, 2, 'BINARY-8', 83, None)
+(15, 'Column', 0, 0, 4, None, 0, None)
+(16, 'Column', 1, 0, 5, None, 0, None)
+(17, 'ResultRow', 4, 2, 0, None, 0, None)
+(18, 'DecrJumpZero', 1, 21, 0, None, 0, None)
+(19, 'Next', 1, 6, 0, None, 1, None)
+(20, 'Next', 0, 5, 0, None, 1, None)
+(21, 'Halt', 0, 0, 0, None, 0, None)
+(22, 'Transaction', 0, 0, 3281, '0', 1, None)
+(23, 'Goto', 0, 1, 0, None, 0, None)
+
+Exec Plan:
+(4, 0, 0, 'SCAN t1')
+(6, 0, 0, 'SCAN t2')

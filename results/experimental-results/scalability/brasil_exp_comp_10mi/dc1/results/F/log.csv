@@ -1,0 +1,8 @@
+Engine,10,20,30,40,50,60,70,80,90,100
+DuckDB,1,1,1,1,1,1,1,1,1,1
+SQL Server,TimeLimitToExecQuery
+Umbra,1,1,1,1,1,1,1,1,1,1
+PostgreSQL,TimeLimitToExecQuery
+MySQL,1,1,1,1,1,1,1,1,1,1
+SQLite,1,1,1,1,1,1,1,1,1,1
+Db2,1,1,1,1,1,1,1,1,1,1

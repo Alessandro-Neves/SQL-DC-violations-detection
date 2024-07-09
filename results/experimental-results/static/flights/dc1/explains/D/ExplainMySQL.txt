@@ -1,0 +1,22 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid ;
+
+Explain:
+(1, 'PRIMARY', 't1', None, 'ALL', None, None, None, None, 91187, 100.0, None)
+(1, 'PRIMARY', 't2', None, 'ALL', None, None, None, None, 91187, 0.1, 'Using where; Using join buffer (hash join)')
+(2, 'UNION', 't1', None, 'ALL', None, None, None, None, 91187, 100.0, None)
+(2, 'UNION', 't2', None, 'ALL', None, None, None, None, 91187, 0.1, 'Using where; Using join buffer (hash join)')
+(3, 'UNION RESULT', '<union1,2>', None, 'ALL', None, None, None, None, None, None, 'Using temporary')
+
+Exec Plan:
+-> Table scan on <union temporary>  (cost=2.41e+9..2.41e+9 rows=16.6e+6) (actual time=2840..2840 rows=909 loops=1)
+    -> Union materialize with deduplication  (cost=2.41e+9..2.41e+9 rows=16.6e+6) (actual time=2840..2840 rows=909 loops=1)
+        -> Filter: ((t1.flights > t2.flights) and (t1.passengers < t2.passengers) and (t1.tid <> t2.tid) and (t2.destination = t1.destination) and (t2.origin = t1.origin))  (cost=1.21e+9 rows=8.31e+6) (actual time=317..1417 rows=878 loops=1)
+            -> Inner hash join (<hash>(t2.destination)=<hash>(t1.destination)), (<hash>(t2.origin)=<hash>(t1.origin))  (cost=1.21e+9 rows=8.31e+6) (actual time=92.5..1129 rows=5.13e+6 loops=1)
+                -> Table scan on t2  (cost=4096 rows=91187) (actual time=0.0237..58 rows=91187 loops=1)
+                -> Hash
+                    -> Table scan on t1  (cost=9119 rows=91187) (actual time=0.0194..58.6 rows=91187 loops=1)
+        -> Filter: ((t1.flights > t2.flights) and (t1.passengers < t2.passengers) and (t1.tid <> t2.tid) and (t2.destination = t1.destination) and (t2.origin = t1.origin))  (cost=1.21e+9 rows=8.31e+6) (actual time=317..1423 rows=878 loops=1)
+            -> Inner hash join (<hash>(t2.destination)=<hash>(t1.destination)), (<hash>(t2.origin)=<hash>(t1.origin))  (cost=1.21e+9 rows=8.31e+6) (actual time=91.2..1143 rows=5.13e+6 loops=1)
+                -> Table scan on t2  (cost=4096 rows=91187) (actual time=0.0237..58.5 rows=91187 loops=1)
+                -> Hash
+                    -> Table scan on t1  (cost=9119 rows=91187) (actual time=0.0236..58 rows=91187 loops=1)

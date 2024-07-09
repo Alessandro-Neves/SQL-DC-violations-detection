@@ -1,0 +1,11 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 6, 12, 2, 16, 10, 368792), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 6, 12, 2, 16, 10, 368792), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 3234959.5, 'SELECT Q2.TID AS "ID1", Q1.TID AS "ID2" FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q2.TID <> Q1.TID) AND (Q2.TPEP_DROPOFF_DATETIME < Q1.TPEP_PICKUP_DATETIME) AND (Q1.TPEP_DROPOFF_DATETIME < Q2.TPEP_PICKUP_DATETIME)', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 6, 12, 2, 16, 10, 368792), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 3234959.5, 1854.0, 34226357403648.0, 13.61067008972168, 3233324.0, 0.0, 34226344820736.0, 0.0, 0.0, 1854.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 12, 2, 16, 10, 368792), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'NLJOIN', 3234959.5, 1854.0, 34226357403648.0, 13.61067008972168, 3233324.0, 0.0, 34226344820736.0, 0.0, 0.0, 1854.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 12, 2, 16, 10, 368792), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'TBSCAN', 833.9924926757812, 927.0, 177968768.0, 6.769941806793213, 16.267702102661133, 0.0, 172201728.0, 0.0, 0.0, 927.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 12, 2, 16, 10, 368792), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 850.057861328125, 927.0, 348028768.0, 6.840727806091309, 32.33307647705078, 0.0, 342261728.0, 0.0, 0.0, 927.0, 0.0, 0.0)

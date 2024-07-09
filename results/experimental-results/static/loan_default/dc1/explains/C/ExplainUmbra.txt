@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.age, t2.age, t1.income, t2.income, t1.loan_amount, t2.loan_amount, t1.loan_term, t2.loan_term HAVING t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid;
+
+Explain:
+      groupby
+      card 176'116
+
+      join (hash)
+      card 195'684
+      income14...
+
+tablescan    tablescan
+t            t
+card 255'347 card 255'347
+tid isn...   tid isn...

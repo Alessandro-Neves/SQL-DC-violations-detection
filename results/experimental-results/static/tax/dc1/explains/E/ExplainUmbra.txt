@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid);
+
+Explain:
+                  union
+                  card 1'644'679
+
+  leftsemi join (hash)      leftsemi join (hash)
+  card 999'933              card 999'933
+  zip = zip19 & tid...      zip45 = zip32 & t...
+
+tablescan    tablescan    tablescan    tablescan
+t            t            t            t
+card 999'962 card 999'962 card 999'962 card 999'962
+tid isn...   tid isn...

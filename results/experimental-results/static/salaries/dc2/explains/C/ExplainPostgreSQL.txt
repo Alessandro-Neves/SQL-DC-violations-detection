@@ -1,0 +1,48 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.total_pay, t2.total_pay_benefits, t1.total_pay_benefits, t2.total_pay HAVING t1.total_pay > t2.total_pay_benefits AND t1.total_pay_benefits < t2.total_pay AND t1.tid <> t2.tid;
+
+Explain:
+('Group  (cost=1095223.54..234777998.91 rows=56205009 width=48)',)
+('  Group Key: t1.tid, t2.tid, t1.total_pay, t2.total_pay_benefits, t1.total_pay_benefits, t2.total_pay',)
+('  ->  Incremental Sort  (cost=1095223.54..225456340.29 rows=621443908 width=48)',)
+('        Sort Key: t1.tid, t2.tid, t1.total_pay, t2.total_pay_benefits, t1.total_pay_benefits, t2.total_pay',)
+('        Presorted Key: t1.tid',)
+('        ->  Nested Loop  (cost=6816.18..112440284.71 rows=621443908 width=48)',)
+('              Join Filter: ((t1.total_pay > t2.total_pay_benefits) AND (t1.total_pay_benefits < t2.total_pay) AND (t1.tid <> t2.tid))',)
+('              ->  Gather Merge  (cost=6816.18..15361.01 rows=74974 width=24)',)
+('                    Workers Planned: 1',)
+('                    ->  Sort  (cost=5816.17..5926.43 rows=44102 width=24)',)
+('                          Sort Key: t1.tid',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..2414.02 rows=44102 width=24)',)
+('              ->  Materialize  (cost=0.00..3097.61 rows=74974 width=24)',)
+('                    ->  Seq Scan on t t2  (cost=0.00..2722.74 rows=74974 width=24)',)
+('JIT:',)
+('  Functions: 11',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Group  (cost=1095223.54..234777998.91 rows=56205009 width=48) (actual time=808.003..1219233.553 rows=1944 loops=1)
+  Group Key: t1.tid, t2.tid, t1.total_pay, t2.total_pay_benefits, t1.total_pay_benefits, t2.total_pay
+  ->  Incremental Sort  (cost=1095223.54..225456340.29 rows=621443908 width=48) (actual time=807.984..1219233.210 rows=1944 loops=1)
+        Sort Key: t1.tid, t2.tid, t1.total_pay, t2.total_pay_benefits, t1.total_pay_benefits, t2.total_pay
+        Presorted Key: t1.tid
+        Full-sort Groups: 35  Sort Method: quicksort  Average Memory: 27kB  Peak Memory: 27kB
+        Pre-sorted Groups: 21  Sort Method: quicksort  Average Memory: 26kB  Peak Memory: 58kB
+        ->  Nested Loop  (cost=6816.18..112440284.71 rows=621443908 width=48) (actual time=483.563..1219231.981 rows=1944 loops=1)
+              Join Filter: ((t1.total_pay > t2.total_pay_benefits) AND (t1.total_pay_benefits < t2.total_pay) AND (t1.tid <> t2.tid))
+              Rows Removed by Join Filter: 9999998056
+              ->  Gather Merge  (cost=6816.18..15361.01 rows=74974 width=24) (actual time=240.903..278.916 rows=100000 loops=1)
+                    Workers Planned: 1
+                    Workers Launched: 1
+                    ->  Sort  (cost=5816.17..5926.43 rows=44102 width=24) (actual time=192.872..197.313 rows=50000 loops=2)
+                          Sort Key: t1.tid
+                          Sort Method: quicksort  Memory: 27kB
+                          Worker 0:  Sort Method: external merge  Disk: 3336kB
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..2414.02 rows=44102 width=24) (actual time=172.640..180.549 rows=50000 loops=2)
+              ->  Materialize  (cost=0.00..3097.61 rows=74974 width=24) (actual time=0.002..7.866 rows=100000 loops=100000)
+                    ->  Seq Scan on t t2  (cost=0.00..2722.74 rows=74974 width=24) (actual time=0.016..12.195 rows=100000 loops=1)
+Planning Time: 0.088 ms
+JIT:
+  Functions: 13
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 0.825 ms, Inlining 134.627 ms, Optimization 123.344 ms, Emission 87.316 ms, Total 346.112 ms
+Execution Time: 1219235.166 ms

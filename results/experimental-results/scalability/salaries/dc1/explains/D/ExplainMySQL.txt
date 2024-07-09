@@ -1,0 +1,22 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid ;
+
+Explain:
+(1, 'PRIMARY', 't1', None, 'ALL', None, None, None, None, 10000, 100.0, None)
+(1, 'PRIMARY', 't2', None, 'ALL', None, None, None, None, 10000, 1.11, 'Using where; Using join buffer (hash join)')
+(2, 'UNION', 't1', None, 'ALL', None, None, None, None, 10000, 100.0, None)
+(2, 'UNION', 't2', None, 'ALL', None, None, None, None, 10000, 1.11, 'Using where; Using join buffer (hash join)')
+(3, 'UNION RESULT', '<union1,2>', None, 'ALL', None, None, None, None, None, None, 'Using temporary')
+
+Exec Plan:
+-> Table scan on <union temporary>  (cost=20.2e+6..20.3e+6 rows=2.22e+6) (actual time=36662..36662 rows=100 loops=1)
+    -> Union materialize with deduplication  (cost=20.2e+6..20.2e+6 rows=2.22e+6) (actual time=36662..36662 rows=100 loops=1)
+        -> Filter: ((t1.base_pay > t2.base_pay) and (t1.overtime_pay > t2.overtime_pay) and (t1.other_pay > t2.other_pay) and (t1.total_pay < t2.total_pay) and (t1.tid <> t2.tid))  (cost=10e+6 rows=1.11e+6) (actual time=17..18388 rows=51 loops=1)
+            -> Inner hash join (no condition)  (cost=10e+6 rows=1.11e+6) (actual time=15.7..9178 rows=100e+6 loops=1)
+                -> Table scan on t2  (cost=0.00118 rows=10000) (actual time=0.0281..14.9 rows=10000 loops=1)
+                -> Hash
+                    -> Table scan on t1  (cost=1000 rows=10000) (actual time=0.0198..7.91 rows=10000 loops=1)
+        -> Filter: ((t1.base_pay > t2.base_pay) and (t1.overtime_pay > t2.overtime_pay) and (t1.other_pay > t2.other_pay) and (t1.total_pay < t2.total_pay) and (t1.tid <> t2.tid))  (cost=10e+6 rows=1.11e+6) (actual time=15.9..18273 rows=51 loops=1)
+            -> Inner hash join (no condition)  (cost=10e+6 rows=1.11e+6) (actual time=15.1..8976 rows=100e+6 loops=1)
+                -> Table scan on t2  (cost=0.00118 rows=10000) (actual time=0.0164..13.2 rows=10000 loops=1)
+                -> Hash
+                    -> Table scan on t1  (cost=1000 rows=10000) (actual time=0.0222..7.45 rows=10000 loops=1)

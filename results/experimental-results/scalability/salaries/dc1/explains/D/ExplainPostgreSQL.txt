@@ -1,0 +1,45 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid ;
+
+Explain:
+('Unique  (cost=2999542.98..3006497.00 rows=1390804 width=8)',)
+('  ->  Sort  (cost=2999542.98..3003019.99 rows=1390804 width=8)',)
+('        Sort Key: t1.tid',)
+('        ->  Append  (cost=0.00..2838613.40 rows=1390804 width=8)',)
+('              ->  Nested Loop  (cost=0.00..1415829.69 rows=695402 width=8)',)
+('                    Join Filter: ((t1.base_pay > t2.base_pay) AND (t1.overtime_pay > t2.overtime_pay) AND (t1.other_pay > t2.other_pay) AND (t1.total_pay < t2.total_pay) AND (t1.tid <> t2.tid))',)
+('                    ->  Seq Scan on t t1  (cost=0.00..273.24 rows=7524 width=40)',)
+('                    ->  Materialize  (cost=0.00..310.86 rows=7524 width=40)',)
+('                          ->  Seq Scan on t t2  (cost=0.00..273.24 rows=7524 width=40)',)
+('              ->  Nested Loop  (cost=0.00..1415829.69 rows=695402 width=8)',)
+('                    Join Filter: ((t1_1.base_pay > t2_1.base_pay) AND (t1_1.overtime_pay > t2_1.overtime_pay) AND (t1_1.other_pay > t2_1.other_pay) AND (t1_1.total_pay < t2_1.total_pay) AND (t1_1.tid <> t2_1.tid))',)
+('                    ->  Seq Scan on t t1_1  (cost=0.00..273.24 rows=7524 width=40)',)
+('                    ->  Materialize  (cost=0.00..310.86 rows=7524 width=40)',)
+('                          ->  Seq Scan on t t2_1  (cost=0.00..273.24 rows=7524 width=40)',)
+('JIT:',)
+('  Functions: 15',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Unique  (cost=2999542.98..3006497.00 rows=1390804 width=8) (actual time=23609.578..23609.633 rows=100 loops=1)
+  ->  Sort  (cost=2999542.98..3003019.99 rows=1390804 width=8) (actual time=23609.575..23609.586 rows=102 loops=1)
+        Sort Key: t1.tid
+        Sort Method: quicksort  Memory: 25kB
+        ->  Append  (cost=0.00..2838613.40 rows=1390804 width=8) (actual time=992.546..23609.479 rows=102 loops=1)
+              ->  Nested Loop  (cost=0.00..1415829.69 rows=695402 width=8) (actual time=992.545..10991.345 rows=51 loops=1)
+                    Join Filter: ((t1.base_pay > t2.base_pay) AND (t1.overtime_pay > t2.overtime_pay) AND (t1.other_pay > t2.other_pay) AND (t1.total_pay < t2.total_pay) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 99999949
+                    ->  Seq Scan on t t1  (cost=0.00..273.24 rows=7524 width=40) (actual time=0.019..2.541 rows=10000 loops=1)
+                    ->  Materialize  (cost=0.00..310.86 rows=7524 width=40) (actual time=0.036..0.491 rows=10000 loops=10000)
+                          ->  Seq Scan on t t2  (cost=0.00..273.24 rows=7524 width=40) (actual time=355.521..358.292 rows=10000 loops=1)
+              ->  Nested Loop  (cost=0.00..1415829.69 rows=695402 width=8) (actual time=739.459..12618.076 rows=51 loops=1)
+                    Join Filter: ((t1_1.base_pay > t2_1.base_pay) AND (t1_1.overtime_pay > t2_1.overtime_pay) AND (t1_1.other_pay > t2_1.other_pay) AND (t1_1.total_pay < t2_1.total_pay) AND (t1_1.tid <> t2_1.tid))
+                    Rows Removed by Join Filter: 99999949
+                    ->  Seq Scan on t t1_1  (cost=0.00..273.24 rows=7524 width=40) (actual time=0.009..2.731 rows=10000 loops=1)
+                    ->  Materialize  (cost=0.00..310.86 rows=7524 width=40) (actual time=0.000..0.456 rows=10000 loops=10000)
+                          ->  Seq Scan on t t2_1  (cost=0.00..273.24 rows=7524 width=40) (actual time=0.022..1.388 rows=10000 loops=1)
+Planning Time: 0.107 ms
+JIT:
+  Functions: 15
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 0.956 ms, Inlining 83.741 ms, Optimization 163.358 ms, Emission 108.499 ms, Total 356.555 ms
+Execution Time: 23610.905 ms

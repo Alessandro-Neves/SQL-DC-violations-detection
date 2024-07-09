@@ -1,0 +1,47 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid);
+
+Explain:
+('HashAggregate  (cost=30026.06..30111.02 rows=8496 width=8)',)
+('  Group Key: t1.tid',)
+('  ->  Gather  (cost=4987.18..30004.82 rows=8496 width=8)',)
+('        Workers Planned: 2',)
+('        ->  Parallel Append  (cost=3987.18..28155.22 rows=3540 width=8)',)
+('              ->  Parallel Hash Semi Join  (cost=3987.18..14068.76 rows=2499 width=8)',)
+('                    Hash Cond: ((t1.quantity = t2.quantity) AND (t1.tax = t2.tax))',)
+('                    Join Filter: ((t1.discount < t2.discount) AND (t1.price > t2.price) AND (t1.tid <> t2.tid))',)
+('                    ->  Parallel Seq Scan on t t1  (cost=0.00..2637.67 rows=89967 width=40)',)
+('                    ->  Parallel Hash  (cost=2637.67..2637.67 rows=89967 width=40)',)
+('                          ->  Parallel Seq Scan on t t2  (cost=0.00..2637.67 rows=89967 width=40)',)
+('              ->  Parallel Hash Semi Join  (cost=3987.18..14068.76 rows=2499 width=8)',)
+('                    Hash Cond: ((t2_1.quantity = t1_1.quantity) AND (t2_1.tax = t1_1.tax))',)
+('                    Join Filter: ((t1_1.discount < t2_1.discount) AND (t1_1.price > t2_1.price) AND (t1_1.tid <> t2_1.tid))',)
+('                    ->  Parallel Seq Scan on t t2_1  (cost=0.00..2637.67 rows=89967 width=40)',)
+('                    ->  Parallel Hash  (cost=2637.67..2637.67 rows=89967 width=40)',)
+('                          ->  Parallel Seq Scan on t t1_1  (cost=0.00..2637.67 rows=89967 width=40)',)
+
+Exec Plan:
+HashAggregate  (cost=30026.06..30111.02 rows=8496 width=8) (actual time=165.882..171.147 rows=1598 loops=1)
+  Group Key: t1.tid
+  Batches: 1  Memory Usage: 465kB
+  ->  Gather  (cost=4987.18..30004.82 rows=8496 width=8) (actual time=66.880..170.382 rows=1600 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        ->  Parallel Append  (cost=3987.18..28155.22 rows=3540 width=8) (actual time=71.057..161.288 rows=533 loops=3)
+              ->  Parallel Hash Semi Join  (cost=3987.18..14068.76 rows=2499 width=8) (actual time=28.261..75.905 rows=198 loops=3)
+                    Hash Cond: ((t1.quantity = t2.quantity) AND (t1.tax = t2.tax))
+                    Join Filter: ((t1.discount < t2.discount) AND (t1.price > t2.price) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 123252
+                    ->  Parallel Seq Scan on t t1  (cost=0.00..2637.67 rows=89967 width=40) (actual time=0.004..5.874 rows=50980 loops=3)
+                    ->  Parallel Hash  (cost=2637.67..2637.67 rows=89967 width=40) (actual time=27.332..27.332 rows=50980 loops=3)
+                          Buckets: 262144  Batches: 1  Memory Usage: 12832kB
+                          ->  Parallel Seq Scan on t t2  (cost=0.00..2637.67 rows=89967 width=40) (actual time=0.007..25.813 rows=152939 loops=1)
+              ->  Parallel Hash Semi Join  (cost=3987.18..14068.76 rows=2499 width=8) (actual time=64.536..127.979 rows=503 loops=2)
+                    Hash Cond: ((t2_1.quantity = t1_1.quantity) AND (t2_1.tax = t1_1.tax))
+                    Join Filter: ((t1_1.discount < t2_1.discount) AND (t1_1.price > t2_1.price) AND (t1_1.tid <> t2_1.tid))
+                    Rows Removed by Join Filter: 184537
+                    ->  Parallel Seq Scan on t t2_1  (cost=0.00..2637.67 rows=89967 width=40) (actual time=0.007..7.645 rows=76470 loops=2)
+                    ->  Parallel Hash  (cost=2637.67..2637.67 rows=89967 width=40) (actual time=62.559..62.559 rows=76470 loops=2)
+                          Buckets: 262144  Batches: 1  Memory Usage: 12832kB
+                          ->  Parallel Seq Scan on t t1_1  (cost=0.00..2637.67 rows=89967 width=40) (actual time=0.018..22.579 rows=76470 loops=2)
+Planning Time: 0.159 ms
+Execution Time: 171.485 ms

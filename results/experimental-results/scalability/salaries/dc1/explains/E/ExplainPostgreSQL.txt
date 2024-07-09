@@ -1,0 +1,43 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid);
+
+Explain:
+('HashAggregate  (cost=2796683.52..2796685.38 rows=186 width=8)',)
+('  Group Key: t1.tid',)
+('  ->  Append  (cost=0.00..2796683.06 rows=186 width=8)',)
+('        ->  Nested Loop Semi Join  (cost=0.00..1398341.06 rows=93 width=8)',)
+('              Join Filter: ((t1.base_pay > t2.base_pay) AND (t1.overtime_pay > t2.overtime_pay) AND (t1.other_pay > t2.other_pay) AND (t1.total_pay < t2.total_pay) AND (t1.tid <> t2.tid))',)
+('              ->  Seq Scan on t t1  (cost=0.00..273.24 rows=7524 width=40)',)
+('              ->  Materialize  (cost=0.00..310.86 rows=7524 width=40)',)
+('                    ->  Seq Scan on t t2  (cost=0.00..273.24 rows=7524 width=40)',)
+('        ->  Nested Loop Semi Join  (cost=0.00..1398341.06 rows=93 width=8)',)
+('              Join Filter: ((t1_1.base_pay > t2_1.base_pay) AND (t1_1.overtime_pay > t2_1.overtime_pay) AND (t1_1.other_pay > t2_1.other_pay) AND (t1_1.total_pay < t2_1.total_pay) AND (t1_1.tid <> t2_1.tid))',)
+('              ->  Seq Scan on t t2_1  (cost=0.00..273.24 rows=7524 width=40)',)
+('              ->  Materialize  (cost=0.00..310.86 rows=7524 width=40)',)
+('                    ->  Seq Scan on t t1_1  (cost=0.00..273.24 rows=7524 width=40)',)
+('JIT:',)
+('  Functions: 16',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+HashAggregate  (cost=2796683.52..2796685.38 rows=186 width=8) (actual time=21819.673..21819.689 rows=100 loops=1)
+  Group Key: t1.tid
+  Batches: 1  Memory Usage: 40kB
+  ->  Append  (cost=0.00..2796683.06 rows=186 width=8) (actual time=983.229..21819.280 rows=100 loops=1)
+        ->  Nested Loop Semi Join  (cost=0.00..1398341.06 rows=93 width=8) (actual time=983.228..10978.943 rows=49 loops=1)
+              Join Filter: ((t1.base_pay > t2.base_pay) AND (t1.overtime_pay > t2.overtime_pay) AND (t1.other_pay > t2.other_pay) AND (t1.total_pay < t2.total_pay) AND (t1.tid <> t2.tid))
+              Rows Removed by Join Filter: 99748785
+              ->  Seq Scan on t t1  (cost=0.00..273.24 rows=7524 width=40) (actual time=0.018..2.566 rows=10000 loops=1)
+              ->  Materialize  (cost=0.00..310.86 rows=7524 width=40) (actual time=0.035..0.489 rows=9975 loops=10000)
+                    ->  Seq Scan on t t2  (cost=0.00..273.24 rows=7524 width=40) (actual time=352.720..354.662 rows=10000 loops=1)
+        ->  Nested Loop Semi Join  (cost=0.00..1398341.06 rows=93 width=8) (actual time=0.687..10840.283 rows=51 loops=1)
+              Join Filter: ((t1_1.base_pay > t2_1.base_pay) AND (t1_1.overtime_pay > t2_1.overtime_pay) AND (t1_1.other_pay > t2_1.other_pay) AND (t1_1.total_pay < t2_1.total_pay) AND (t1_1.tid <> t2_1.tid))
+              Rows Removed by Join Filter: 99785256
+              ->  Seq Scan on t t2_1  (cost=0.00..273.24 rows=7524 width=40) (actual time=0.008..2.710 rows=10000 loops=1)
+              ->  Materialize  (cost=0.00..310.86 rows=7524 width=40) (actual time=0.000..0.463 rows=9979 loops=10000)
+                    ->  Seq Scan on t t1_1  (cost=0.00..273.24 rows=7524 width=40) (actual time=0.023..1.397 rows=10000 loops=1)
+Planning Time: 0.198 ms
+JIT:
+  Functions: 19
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 1.544 ms, Inlining 81.788 ms, Optimization 163.091 ms, Emission 107.906 ms, Total 354.328 ms
+Execution Time: 21821.502 ms

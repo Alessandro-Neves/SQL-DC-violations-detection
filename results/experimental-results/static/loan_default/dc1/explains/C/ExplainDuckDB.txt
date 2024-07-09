@@ -1,0 +1,158 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.age, t2.age, t1.income, t2.income, t1.loan_amount, t2.loan_amount, t1.loan_term, t2.loan_term HAVING t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid;
+
+Explain:
+┌───────────────────────────┐                             
+│         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            id1            │                             
+│            id2            │                             
+└─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             
+│       HASH_GROUP_BY       │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│             #0            │                             
+│             #1            │                             
+│             #2            │                             
+│             #3            │                             
+│             #4            │                             
+│             #5            │                             
+│             #6            │                             
+│             #7            │                             
+│             #8            │                             
+│             #9            │                             
+└─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             
+│         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            tid            │                             
+│            tid            │                             
+│            age            │                             
+│            age            │                             
+│           income          │                             
+│           income          │                             
+│        loan_amount        │                             
+│        loan_amount        │                             
+│         loan_term         │                             
+│         loan_term         │                             
+└─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             
+│         HASH_JOIN         │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│           INNER           │                             
+│ loan_amount = loan_amount │                             
+│      income = income      │                             
+│         tid != tid        ├──────────────┐              
+│   loan_term < loan_term   │              │              
+│         age > age         │              │              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│         EC: 265266        │              │              
+│        Cost: 265266       │              │              
+└─────────────┬─────────────┘              │                                           
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│             t             ││             t             │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│            tid            ││            tid            │
+│            age            ││            age            │
+│           income          ││           income          │
+│        loan_amount        ││        loan_amount        │
+│         loan_term         ││         loan_term         │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│         EC: 255347        ││         EC: 255347        │
+└───────────────────────────┘└───────────────────────────┘                             
+
+
+Exec Plan:
+┌─────────────────────────────────────┐
+│┌───────────────────────────────────┐│
+││    Query Profiling Information    ││
+│└───────────────────────────────────┘│
+└─────────────────────────────────────┘
+EXPLAIN ANALYZE SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.age, t2.age, t1.income, t2.income, t1.loan_amount, t2.loan_amount, t1.loan_term, t2.loan_term HAVING t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid;
+┌─────────────────────────────────────┐
+│┌───────────────────────────────────┐│
+││        Total Time: 0.0327s        ││
+│└───────────────────────────────────┘│
+└─────────────────────────────────────┘
+┌───────────────────────────┐                             
+│      EXPLAIN_ANALYZE      │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│             0             │                             
+│          (0.00s)          │                             
+└─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             
+│         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            id1            │                             
+│            id2            │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            6315           │                             
+│          (0.00s)          │                             
+└─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             
+│       HASH_GROUP_BY       │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│             #0            │                             
+│             #1            │                             
+│             #2            │                             
+│             #3            │                             
+│             #4            │                             
+│             #5            │                             
+│             #6            │                             
+│             #7            │                             
+│             #8            │                             
+│             #9            │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            6315           │                             
+│          (0.00s)          │                             
+└─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             
+│         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            tid            │                             
+│            tid            │                             
+│            age            │                             
+│            age            │                             
+│           income          │                             
+│           income          │                             
+│        loan_amount        │                             
+│        loan_amount        │                             
+│         loan_term         │                             
+│         loan_term         │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            6315           │                             
+│          (0.00s)          │                             
+└─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             
+│         HASH_JOIN         │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│           INNER           │                             
+│ loan_amount = loan_amount │                             
+│      income = income      │                             
+│         tid != tid        │                             
+│   loan_term < loan_term   │                             
+│         age > age         ├──────────────┐              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│         EC: 265266        │              │              
+│        Cost: 265266       │              │              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│            6315           │              │              
+│          (0.04s)          │              │              
+└─────────────┬─────────────┘              │                                           
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│             t             ││             t             │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│            tid            ││            tid            │
+│            age            ││            age            │
+│           income          ││           income          │
+│        loan_amount        ││        loan_amount        │
+│         loan_term         ││         loan_term         │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│         EC: 255347        ││         EC: 255347        │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│           255347          ││           255347          │
+│          (0.00s)          ││          (0.00s)          │
+└───────────────────────────┘└───────────────────────────┘                             

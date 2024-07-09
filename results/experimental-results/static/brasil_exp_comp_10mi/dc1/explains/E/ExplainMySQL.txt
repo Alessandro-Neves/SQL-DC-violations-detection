@@ -1,0 +1,8 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid);
+
+Explain:
+(1, 'PRIMARY', 't1', None, 'ALL', None, None, None, None, 9928429, 100.0, None)
+(1, 'PRIMARY', 't2', None, 'ALL', None, None, None, None, 9928429, 1.0, 'Using where; FirstMatch(t1); Using join buffer (hash join)')
+(3, 'UNION', 't2', None, 'ALL', None, None, None, None, 9928429, 100.0, None)
+(3, 'UNION', 't1', None, 'ALL', None, None, None, None, 9928429, 1.0, 'Using where; FirstMatch(t2); Using join buffer (hash join)')
+(5, 'UNION RESULT', '<union1,3>', None, 'ALL', None, None, None, None, None, None, 'Using temporary')

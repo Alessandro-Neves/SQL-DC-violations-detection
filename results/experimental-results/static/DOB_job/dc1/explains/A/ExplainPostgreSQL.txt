@@ -1,0 +1,37 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid;
+
+Explain:
+('Merge Join  (cost=403421.65..99793687.57 rows=1457657320 width=16)',)
+('  Merge Cond: (t1.job = t2.job)',)
+('  Join Filter: ((t1.borough <> t2.borough) AND (t1.lot > t2.lot) AND (t1.tid <> t2.tid))',)
+('  ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56)',)
+('        Sort Key: t1.job',)
+('        ->  Seq Scan on t t1  (cost=0.00..44209.97 rows=939897 width=56)',)
+('  ->  Materialize  (cost=201710.82..206410.31 rows=939897 width=56)',)
+('        ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56)',)
+('              Sort Key: t2.job',)
+('              ->  Seq Scan on t t2  (cost=0.00..44209.97 rows=939897 width=56)',)
+('JIT:',)
+('  Functions: 14',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Merge Join  (cost=403421.65..99793687.57 rows=1457657320 width=16) (actual time=2975.955..4581.642 rows=14783 loops=1)
+  Merge Cond: (t1.job = t2.job)
+  Join Filter: ((t1.borough <> t2.borough) AND (t1.lot > t2.lot) AND (t1.tid <> t2.tid))
+  Rows Removed by Join Filter: 4475840
+  ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56) (actual time=1747.510..2010.309 rows=2180001 loops=1)
+        Sort Key: t1.job
+        Sort Method: external merge  Disk: 101536kB
+        ->  Seq Scan on t t1  (cost=0.00..44209.97 rows=939897 width=56) (actual time=363.048..817.339 rows=2180001 loops=1)
+  ->  Materialize  (cost=201710.82..206410.31 rows=939897 width=56) (actual time=1228.097..1839.042 rows=4490623 loops=1)
+        ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56) (actual time=1228.093..1503.449 rows=2180001 loops=1)
+              Sort Key: t2.job
+              Sort Method: external merge  Disk: 101536kB
+              ->  Seq Scan on t t2  (cost=0.00..44209.97 rows=939897 width=56) (actual time=0.029..281.664 rows=2180001 loops=1)
+Planning Time: 0.088 ms
+JIT:
+  Functions: 14
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 0.935 ms, Inlining 95.643 ms, Optimization 134.087 ms, Emission 132.798 ms, Total 363.462 ms
+Execution Time: 4623.412 ms

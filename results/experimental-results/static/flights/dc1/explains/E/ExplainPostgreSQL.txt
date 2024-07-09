@@ -1,0 +1,47 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid);
+
+Explain:
+('HashAggregate  (cost=13735.51..13764.63 rows=2912 width=8)',)
+('  Group Key: t1.tid',)
+('  ->  Gather  (cost=3188.02..13728.23 rows=2912 width=8)',)
+('        Workers Planned: 2',)
+('        ->  Parallel Append  (cost=2188.02..12437.03 rows=1212 width=8)',)
+('              ->  Parallel Hash Semi Join  (cost=2188.02..6215.49 rows=856 width=8)',)
+('                    Hash Cond: ((t1.origin = t2.origin) AND (t1.destination = t2.destination))',)
+('                    Join Filter: ((t1.flights > t2.flights) AND (t1.passengers < t2.passengers) AND (t1.tid <> t2.tid))',)
+('                    ->  Parallel Seq Scan on t t1  (cost=0.00..1725.41 rows=30841 width=88)',)
+('                    ->  Parallel Hash  (cost=1725.41..1725.41 rows=30841 width=88)',)
+('                          ->  Parallel Seq Scan on t t2  (cost=0.00..1725.41 rows=30841 width=88)',)
+('              ->  Parallel Hash Semi Join  (cost=2188.02..6215.49 rows=856 width=8)',)
+('                    Hash Cond: ((t2_1.origin = t1_1.origin) AND (t2_1.destination = t1_1.destination))',)
+('                    Join Filter: ((t1_1.flights > t2_1.flights) AND (t1_1.passengers < t2_1.passengers) AND (t1_1.tid <> t2_1.tid))',)
+('                    ->  Parallel Seq Scan on t t2_1  (cost=0.00..1725.41 rows=30841 width=88)',)
+('                    ->  Parallel Hash  (cost=1725.41..1725.41 rows=30841 width=88)',)
+('                          ->  Parallel Seq Scan on t t1_1  (cost=0.00..1725.41 rows=30841 width=88)',)
+
+Exec Plan:
+HashAggregate  (cost=13735.51..13764.63 rows=2912 width=8) (actual time=863.001..867.314 rows=909 loops=1)
+  Group Key: t1.tid
+  Batches: 1  Memory Usage: 177kB
+  ->  Gather  (cost=3188.02..13728.23 rows=2912 width=8) (actual time=48.171..866.590 rows=909 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        ->  Parallel Append  (cost=2188.02..12437.03 rows=1212 width=8) (actual time=88.040..858.655 rows=303 loops=3)
+              ->  Parallel Hash Semi Join  (cost=2188.02..6215.49 rows=856 width=8) (actual time=69.473..303.404 rows=10 loops=3)
+                    Hash Cond: ((t1.origin = t2.origin) AND (t1.destination = t2.destination))
+                    Join Filter: ((t1.flights > t2.flights) AND (t1.passengers < t2.passengers) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 1711077
+                    ->  Parallel Seq Scan on t t1  (cost=0.00..1725.41 rows=30841 width=88) (actual time=0.004..2.504 rows=30396 loops=3)
+                    ->  Parallel Hash  (cost=1725.41..1725.41 rows=30841 width=88) (actual time=18.193..18.194 rows=30396 loops=3)
+                          Buckets: 131072 (originally 65536)  Batches: 1 (originally 1)  Memory Usage: 7264kB
+                          ->  Parallel Seq Scan on t t2  (cost=0.00..1725.41 rows=30841 width=88) (actual time=0.016..18.951 rows=91187 loops=1)
+              ->  Parallel Hash Semi Join  (cost=2188.02..6215.49 rows=856 width=8) (actual time=50.675..832.815 rows=439 loops=2)
+                    Hash Cond: ((t2_1.origin = t1_1.origin) AND (t2_1.destination = t1_1.destination))
+                    Join Filter: ((t1_1.flights > t2_1.flights) AND (t1_1.passengers < t2_1.passengers) AND (t1_1.tid <> t2_1.tid))
+                    Rows Removed by Join Filter: 2560090
+                    ->  Parallel Seq Scan on t t2_1  (cost=0.00..1725.41 rows=30841 width=88) (actual time=0.008..6.507 rows=45594 loops=2)
+                    ->  Parallel Hash  (cost=1725.41..1725.41 rows=30841 width=88) (actual time=31.202..31.203 rows=45594 loops=2)
+                          Buckets: 131072 (originally 65536)  Batches: 1 (originally 1)  Memory Usage: 7264kB
+                          ->  Parallel Seq Scan on t t1_1  (cost=0.00..1725.41 rows=30841 width=88) (actual time=0.022..11.513 rows=45594 loops=2)
+Planning Time: 0.163 ms
+Execution Time: 867.467 ms

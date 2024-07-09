@@ -1,0 +1,1 @@
+t1.quantity = t2.quantity,t1.tax = t2.tax,t1.discount < t2.discount,t1.price > t2.price

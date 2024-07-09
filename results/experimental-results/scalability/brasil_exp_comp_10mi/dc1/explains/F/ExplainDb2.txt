@@ -1,0 +1,11 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid LIMIT 1;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 7, 1, 18, 52, 51, 557774), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid LIMIT 1', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 7, 1, 18, 52, 51, 557774), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 1653915.625, 'SELECT Q3.ID1 AS "ID1", Q3.ID2 AS "ID2" FROM (SELECT Q1.TID, Q2.TID FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q1.CO_NCM = Q2.CO_NCM) AND (Q1.CO_UNID < Q2.CO_UNID) AND (Q2.CO_VIA < Q1.CO_VIA) AND (Q1.TID <> Q2.TID)) AS Q3', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 7, 1, 18, 52, 51, 557774), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 1653915.625, 60636.0, 15059772243968.0, 1653915.625, 1653915.625, 60636.0, 15059772243968.0, 0.0, 0.0, 40747.62890625, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 18, 52, 51, 557774), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'HSJOIN', 1653915.625, 60636.0, 15059772243968.0, 1653915.625, 1653915.625, 60636.0, 15059772243968.0, 0.0, 0.0, 40747.62890625, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 18, 52, 51, 557774), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'TBSCAN', 26798.048828125, 30318.0, 918158592.0, 6.770559787750244, 77.6783218383789, 0.0, 730901184.0, 0.0, 0.0, 30318.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 18, 52, 51, 557774), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 26798.048828125, 30318.0, 918158592.0, 6.770559787750244, 77.6783218383789, 0.0, 730901184.0, 0.0, 0.0, 30318.0, 0.0, 0.0)

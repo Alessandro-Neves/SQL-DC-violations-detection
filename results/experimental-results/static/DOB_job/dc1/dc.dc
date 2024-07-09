@@ -1,0 +1,1 @@
+t1.job = t2.job,t1.borough <> t2.borough,t1.lot > t2.lot

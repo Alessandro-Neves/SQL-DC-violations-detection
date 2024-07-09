@@ -1,0 +1,12 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 45, 870529), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 45, 870529), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 2695050.25, 'SELECT Q4.$C0 FROM (SELECT COUNT(* ) FROM (SELECT $RID$ FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q2.TID <> Q1.TID) AND (Q1.CO_VIA < Q2.CO_VIA) AND (Q2.CO_UNID < Q1.CO_UNID) AND (Q2.CO_NCM = Q1.CO_NCM)) AS Q3) AS Q4', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 45, 870529), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 2695050.25, 60636.0, 15252643119104.0, 2695050.25, 2695050.25, 60636.0, 15252643119104.0, 0.0, 0.0, 39807.65625, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 45, 870529), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'GRPBY ', 2695050.25, 60636.0, 15252643119104.0, 2695050.25, 2695050.25, 60636.0, 15252643119104.0, 0.0, 0.0, 39807.65625, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 45, 870529), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'HSJOIN', 2660703.25, 60636.0, 15054326988800.0, 2660703.25, 2660703.25, 60636.0, 15054326988800.0, 0.0, 0.0, 39807.65625, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 45, 870529), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 26859.490234375, 30318.0, 918158592.0, 6.774060249328613, 126.58687591552734, 0.0, 730901184.0, 0.0, 0.0, 30318.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 7, 1, 17, 9, 45, 870529), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 5, 'TBSCAN', 26859.490234375, 30318.0, 918158592.0, 6.774060249328613, 126.58687591552734, 0.0, 730901184.0, 0.0, 0.0, 30318.0, 0.0, 0.0)

@@ -1,0 +1,41 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid;
+
+Explain:
+('Finalize Aggregate  (cost=83814.24..83814.25 rows=1 width=8)',)
+('  ->  Gather  (cost=83814.12..83814.23 rows=1 width=8)',)
+('        Workers Planned: 1',)
+('        ->  Partial Aggregate  (cost=82814.12..82814.13 rows=1 width=8)',)
+('              ->  Merge Join  (cost=56807.17..82549.05 rows=106031 width=0)',)
+('                    Merge Cond: ((t1.income = t2.income) AND (t1.loan_amount = t2.loan_amount))',)
+('                    Join Filter: ((t1.age > t2.age) AND (t1.loan_term < t2.loan_term) AND (t1.tid <> t2.tid))',)
+('                    ->  Sort  (cost=21429.76..21805.31 rows=150221 width=40)',)
+('                          Sort Key: t1.income, t1.loan_amount',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..4404.21 rows=150221 width=40)',)
+('                    ->  Materialize  (cost=35377.41..36654.29 rows=255376 width=40)',)
+('                          ->  Sort  (cost=35377.41..36015.85 rows=255376 width=40)',)
+('                                Sort Key: t2.income, t2.loan_amount',)
+('                                ->  Seq Scan on t t2  (cost=0.00..5455.76 rows=255376 width=40)',)
+
+Exec Plan:
+Finalize Aggregate  (cost=83814.24..83814.25 rows=1 width=8) (actual time=341.801..344.563 rows=1 loops=1)
+  ->  Gather  (cost=83814.12..83814.23 rows=1 width=8) (actual time=341.667..344.557 rows=2 loops=1)
+        Workers Planned: 1
+        Workers Launched: 1
+        ->  Partial Aggregate  (cost=82814.12..82814.13 rows=1 width=8) (actual time=337.617..337.619 rows=1 loops=2)
+              ->  Merge Join  (cost=56807.17..82549.05 rows=106031 width=0) (actual time=203.747..337.460 rows=3158 loops=2)
+                    Merge Cond: ((t1.income = t2.income) AND (t1.loan_amount = t2.loan_amount))
+                    Join Filter: ((t1.age > t2.age) AND (t1.loan_term < t2.loan_term) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 130909
+                    ->  Sort  (cost=21429.76..21805.31 rows=150221 width=40) (actual time=73.379..87.799 rows=127674 loops=2)
+                          Sort Key: t1.income, t1.loan_amount
+                          Sort Method: external merge  Disk: 6488kB
+                          Worker 0:  Sort Method: external merge  Disk: 6024kB
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..4404.21 rows=150221 width=40) (actual time=0.014..22.085 rows=127674 loops=2)
+                    ->  Materialize  (cost=35377.41..36654.29 rows=255376 width=40) (actual time=130.348..191.214 rows=258622 loops=2)
+                          ->  Sort  (cost=35377.41..36015.85 rows=255376 width=40) (actual time=130.344..165.888 rows=255346 loops=2)
+                                Sort Key: t2.income, t2.loan_amount
+                                Sort Method: external merge  Disk: 12512kB
+                                Worker 0:  Sort Method: external merge  Disk: 12512kB
+                                ->  Seq Scan on t t2  (cost=0.00..5455.76 rows=255376 width=40) (actual time=0.026..34.745 rows=255347 loops=2)
+Planning Time: 0.107 ms
+Execution Time: 349.304 ms

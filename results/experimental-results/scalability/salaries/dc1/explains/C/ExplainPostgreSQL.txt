@@ -1,0 +1,31 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.base_pay, t2.base_pay, t1.overtime_pay, t2.overtime_pay, t1.other_pay, t2.other_pay, t1.total_pay, t2.total_pay HAVING t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid;
+
+Explain:
+('HashAggregate  (cost=1517749.55..1541061.28 rows=565504 width=80)',)
+('  Group Key: t1.tid, t2.tid, t1.base_pay, t2.base_pay, t1.overtime_pay, t2.overtime_pay, t1.other_pay, t2.other_pay, t1.total_pay, t2.total_pay',)
+('  Planned Partitions: 16',)
+('  ->  Nested Loop  (cost=0.00..1415829.69 rows=695402 width=80)',)
+('        Join Filter: ((t1.base_pay > t2.base_pay) AND (t1.overtime_pay > t2.overtime_pay) AND (t1.other_pay > t2.other_pay) AND (t1.total_pay < t2.total_pay) AND (t1.tid <> t2.tid))',)
+('        ->  Seq Scan on t t1  (cost=0.00..273.24 rows=7524 width=40)',)
+('        ->  Materialize  (cost=0.00..310.86 rows=7524 width=40)',)
+('              ->  Seq Scan on t t2  (cost=0.00..273.24 rows=7524 width=40)',)
+('JIT:',)
+('  Functions: 10',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+HashAggregate  (cost=1517749.55..1541061.28 rows=565504 width=80) (actual time=11022.619..11022.824 rows=51 loops=1)
+  Group Key: t1.tid, t2.tid, t1.base_pay, t2.base_pay, t1.overtime_pay, t2.overtime_pay, t1.other_pay, t2.other_pay, t1.total_pay, t2.total_pay
+  Planned Partitions: 16  Batches: 1  Memory Usage: 1569kB
+  ->  Nested Loop  (cost=0.00..1415829.69 rows=695402 width=80) (actual time=991.629..11022.382 rows=51 loops=1)
+        Join Filter: ((t1.base_pay > t2.base_pay) AND (t1.overtime_pay > t2.overtime_pay) AND (t1.other_pay > t2.other_pay) AND (t1.total_pay < t2.total_pay) AND (t1.tid <> t2.tid))
+        Rows Removed by Join Filter: 99999949
+        ->  Seq Scan on t t1  (cost=0.00..273.24 rows=7524 width=40) (actual time=0.012..2.574 rows=10000 loops=1)
+        ->  Materialize  (cost=0.00..310.86 rows=7524 width=40) (actual time=0.036..0.492 rows=10000 loops=10000)
+              ->  Seq Scan on t t2  (cost=0.00..273.24 rows=7524 width=40) (actual time=363.673..365.710 rows=10000 loops=1)
+Planning Time: 0.110 ms
+JIT:
+  Functions: 13
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 1.289 ms, Inlining 77.034 ms, Optimization 169.571 ms, Emission 117.113 ms, Total 365.007 ms
+Execution Time: 11025.501 ms

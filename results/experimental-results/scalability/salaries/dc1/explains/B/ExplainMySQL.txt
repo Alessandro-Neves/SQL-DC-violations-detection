@@ -1,0 +1,13 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 10000, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 10000, 1.11, 'Using where; Using join buffer (hash join)')
+
+Exec Plan:
+-> Aggregate: count(0)  (cost=10.1e+6 rows=1) (actual time=18069..18069 rows=1 loops=1)
+    -> Filter: ((t1.base_pay > t2.base_pay) and (t1.overtime_pay > t2.overtime_pay) and (t1.other_pay > t2.other_pay) and (t1.total_pay < t2.total_pay) and (t1.tid <> t2.tid))  (cost=10e+6 rows=1.11e+6) (actual time=15.8..18069 rows=51 loops=1)
+        -> Inner hash join (no condition)  (cost=10e+6 rows=1.11e+6) (actual time=15..8942 rows=100e+6 loops=1)
+            -> Table scan on t2  (cost=0.00118 rows=10000) (actual time=0.0219..14 rows=10000 loops=1)
+            -> Hash
+                -> Table scan on t1  (cost=1000 rows=10000) (actual time=0.0203..7.52 rows=10000 loops=1)

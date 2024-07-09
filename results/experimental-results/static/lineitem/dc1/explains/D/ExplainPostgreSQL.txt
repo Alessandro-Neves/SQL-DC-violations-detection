@@ -1,0 +1,75 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid ;
+
+Explain:
+('HashAggregate  (cost=100080.57..101373.63 rows=129306 width=8)',)
+('  Group Key: t1.tid',)
+('  ->  Gather  (cost=34121.59..99757.30 rows=129306 width=8)',)
+('        Workers Planned: 2',)
+('        ->  Parallel Append  (cost=33121.59..85826.70 rows=53878 width=8)',)
+('              ->  Merge Join  (cost=33121.59..42778.66 rows=38031 width=8)',)
+('                    Merge Cond: ((t1.quantity = t2.quantity) AND (t1.tax = t2.tax))',)
+('                    Join Filter: ((t1.discount < t2.discount) AND (t1.price > t2.price) AND (t1.tid <> t2.tid))',)
+('                    ->  Sort  (cost=12501.15..12726.07 rows=89967 width=40)',)
+('                          Sort Key: t1.quantity, t1.tax',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..2637.67 rows=89967 width=40)',)
+('                    ->  Materialize  (cost=20620.44..21385.16 rows=152944 width=40)',)
+('                          ->  Sort  (cost=20620.44..21002.80 rows=152944 width=40)',)
+('                                Sort Key: t2.quantity, t2.tax',)
+('                                ->  Seq Scan on t t2  (cost=0.00..3267.44 rows=152944 width=40)',)
+('              ->  Merge Join  (cost=33121.59..42778.66 rows=38031 width=8)',)
+('                    Merge Cond: ((t1_1.quantity = t2_1.quantity) AND (t1_1.tax = t2_1.tax))',)
+('                    Join Filter: ((t1_1.discount < t2_1.discount) AND (t1_1.price > t2_1.price) AND (t1_1.tid <> t2_1.tid))',)
+('                    ->  Sort  (cost=12501.15..12726.07 rows=89967 width=40)',)
+('                          Sort Key: t1_1.quantity, t1_1.tax',)
+('                          ->  Parallel Seq Scan on t t1_1  (cost=0.00..2637.67 rows=89967 width=40)',)
+('                    ->  Materialize  (cost=20620.44..21385.16 rows=152944 width=40)',)
+('                          ->  Sort  (cost=20620.44..21002.80 rows=152944 width=40)',)
+('                                Sort Key: t2_1.quantity, t2_1.tax',)
+('                                ->  Seq Scan on t t2_1  (cost=0.00..3267.44 rows=152944 width=40)',)
+('JIT:',)
+('  Functions: 36',)
+('  Options: Inlining false, Optimization false, Expressions true, Deforming true',)
+
+Exec Plan:
+HashAggregate  (cost=100080.57..101373.63 rows=129306 width=8) (actual time=647.662..653.314 rows=1598 loops=1)
+  Group Key: t1.tid
+  Batches: 1  Memory Usage: 3153kB
+  ->  Gather  (cost=34121.59..99757.30 rows=129306 width=8) (actual time=295.839..651.068 rows=2020 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        ->  Parallel Append  (cost=33121.59..85826.70 rows=53878 width=8) (actual time=253.220..504.920 rows=673 loops=3)
+              ->  Merge Join  (cost=33121.59..42778.66 rows=38031 width=8) (actual time=109.159..308.476 rows=505 loops=2)
+                    Merge Cond: ((t1.quantity = t2.quantity) AND (t1.tax = t2.tax))
+                    Join Filter: ((t1.discount < t2.discount) AND (t1.price > t2.price) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 185172
+                    ->  Sort  (cost=12501.15..12726.07 rows=89967 width=40) (actual time=56.996..84.734 rows=76470 loops=2)
+                          Sort Key: t1.quantity, t1.tax
+                          Worker 0:  Sort Method: quicksort  Memory: 25kB
+                          Worker 1:  Sort Method: external merge  Disk: 7496kB
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..2637.67 rows=89967 width=40) (actual time=10.155..20.585 rows=76470 loops=2)
+                    ->  Materialize  (cost=20620.44..21385.16 rows=152944 width=40) (actual time=104.193..229.385 rows=371354 loops=1)
+                          ->  Sort  (cost=20620.44..21002.80 rows=152944 width=40) (actual time=104.189..159.072 rows=152939 loops=1)
+                                Sort Key: t2.quantity, t2.tax
+                                Worker 1:  Sort Method: external merge  Disk: 7496kB
+                                ->  Seq Scan on t t2  (cost=0.00..3267.44 rows=152944 width=40) (actual time=0.033..21.700 rows=152939 loops=1)
+              ->  Merge Join  (cost=33121.59..42778.66 rows=38031 width=8) (actual time=270.676..448.685 rows=505 loops=2)
+                    Merge Cond: ((t1_1.quantity = t2_1.quantity) AND (t1_1.tax = t2_1.tax))
+                    Join Filter: ((t1_1.discount < t2_1.discount) AND (t1_1.price > t2_1.price) AND (t1_1.tid <> t2_1.tid))
+                    Rows Removed by Join Filter: 185172
+                    ->  Sort  (cost=12501.15..12726.07 rows=89967 width=40) (actual time=117.568..133.321 rows=76470 loops=2)
+                          Sort Key: t1_1.quantity, t1_1.tax
+                          Sort Method: external merge  Disk: 4584kB
+                          Worker 0:  Sort Method: external merge  Disk: 2920kB
+                          ->  Parallel Seq Scan on t t1_1  (cost=0.00..2637.67 rows=89967 width=40) (actual time=37.711..57.639 rows=76470 loops=2)
+                    ->  Materialize  (cost=20620.44..21385.16 rows=152944 width=40) (actual time=152.972..227.494 rows=223756 loops=2)
+                          ->  Sort  (cost=20620.44..21002.80 rows=152944 width=40) (actual time=152.967..194.121 rows=152939 loops=2)
+                                Sort Key: t2_1.quantity, t2_1.tax
+                                Sort Method: external merge  Disk: 7496kB
+                                Worker 0:  Sort Method: external merge  Disk: 7496kB
+                                ->  Seq Scan on t t2_1  (cost=0.00..3267.44 rows=152944 width=40) (actual time=0.033..34.786 rows=152939 loops=2)
+Planning Time: 0.125 ms
+JIT:
+  Functions: 107
+  Options: Inlining false, Optimization false, Expressions true, Deforming true
+  Timing: Generation 5.568 ms, Inlining 0.000 ms, Optimization 3.024 ms, Emission 92.880 ms, Total 101.472 ms
+Execution Time: 659.183 ms

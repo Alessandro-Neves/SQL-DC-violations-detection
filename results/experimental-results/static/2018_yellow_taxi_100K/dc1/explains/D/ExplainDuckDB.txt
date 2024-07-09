@@ -1,0 +1,125 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid ;
+
+Explain:
+┌───────────────────────────┐                                                                                       
+│       HASH_GROUP_BY       │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│         PROJECTION        │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│           UNION           ├───────────────────────────────────────────┐                                           
+└─────────────┬─────────────┘                                           │                                                                        
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│         PROJECTION        │                             │         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            tid            │                             │            tid            │                             
+└─────────────┬─────────────┘                             └─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│          IE_JOIN          │                             │          IE_JOIN          │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│           INNER           │                             │           INNER           │                             
+│  tpep_dropoff_datetime <  │                             │  tpep_dropoff_datetime <  │                             
+│    tpep_pickup_datetime   │                             │    tpep_pickup_datetime   │                             
+│   tpep_pickup_datetime >  ├──────────────┐              │   tpep_pickup_datetime >  ├──────────────┐              
+│    tpep_dropoff_datetime  │              │              │    tpep_dropoff_datetime  │              │              
+│         tid != tid        │              │              │         tid != tid        │              │              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│         EC: 100000        │              │              │         EC: 100000        │              │              
+│        Cost: 100000       │              │              │        Cost: 100000       │              │              
+└─────────────┬─────────────┘              │              └─────────────┬─────────────┘              │                                           
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│             t             ││             t             ││             t             ││             t             │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│    tpep_pickup_datetime   ││   tpep_dropoff_datetime   ││    tpep_pickup_datetime   ││   tpep_dropoff_datetime   │
+│   tpep_dropoff_datetime   ││    tpep_pickup_datetime   ││   tpep_dropoff_datetime   ││    tpep_pickup_datetime   │
+│            tid            ││            tid            ││            tid            ││            tid            │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│         EC: 100000        ││         EC: 100000        ││         EC: 100000        ││         EC: 100000        │
+└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘                             
+
+
+Exec Plan:
+┌─────────────────────────────────────┐
+│┌───────────────────────────────────┐│
+││    Query Profiling Information    ││
+│└───────────────────────────────────┘│
+└─────────────────────────────────────┘
+EXPLAIN ANALYZE SELECT t1.tid FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid ;
+┌─────────────────────────────────────┐
+│┌───────────────────────────────────┐│
+││         Total Time: 0.158s        ││
+│└───────────────────────────────────┘│
+└─────────────────────────────────────┘
+┌───────────────────────────┐                                                                                       
+│      EXPLAIN_ANALYZE      │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             0             │                                                                                       
+│          (0.00s)          │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│       HASH_GROUP_BY       │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│            886            │                                                                                       
+│          (0.00s)          │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│         PROJECTION        │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│            3496           │                                                                                       
+│          (0.00s)          │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│           UNION           │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             0             ├───────────────────────────────────────────┐                                           
+│          (0.00s)          │                                           │                                           
+└─────────────┬─────────────┘                                           │                                                                        
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│         PROJECTION        │                             │         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            tid            │                             │            tid            │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            1748           │                             │            1748           │                             
+│          (0.00s)          │                             │          (0.00s)          │                             
+└─────────────┬─────────────┘                             └─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│          IE_JOIN          │                             │          IE_JOIN          │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│           INNER           │                             │           INNER           │                             
+│  tpep_dropoff_datetime <  │                             │  tpep_dropoff_datetime <  │                             
+│    tpep_pickup_datetime   │                             │    tpep_pickup_datetime   │                             
+│   tpep_pickup_datetime >  │                             │   tpep_pickup_datetime >  │                             
+│    tpep_dropoff_datetime  │                             │    tpep_dropoff_datetime  │                             
+│         tid != tid        ├──────────────┐              │         tid != tid        ├──────────────┐              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│         EC: 100000        │              │              │         EC: 100000        │              │              
+│        Cost: 100000       │              │              │        Cost: 100000       │              │              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│            1748           │              │              │            1748           │              │              
+│          (0.13s)          │              │              │          (0.10s)          │              │              
+└─────────────┬─────────────┘              │              └─────────────┬─────────────┘              │                                           
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│             t             ││             t             ││             t             ││             t             │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│    tpep_pickup_datetime   ││   tpep_dropoff_datetime   ││    tpep_pickup_datetime   ││   tpep_dropoff_datetime   │
+│   tpep_dropoff_datetime   ││    tpep_pickup_datetime   ││   tpep_dropoff_datetime   ││    tpep_pickup_datetime   │
+│            tid            ││            tid            ││            tid            ││            tid            │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│         EC: 100000        ││         EC: 100000        ││         EC: 100000        ││         EC: 100000        │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│           100000          ││           100000          ││           100000          ││           100000          │
+│          (0.00s)          ││          (0.00s)          ││          (0.00s)          ││          (0.00s)          │
+└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘                             

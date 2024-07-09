@@ -1,0 +1,129 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid ;
+
+Explain:
+┌───────────────────────────┐                                                                                       
+│       HASH_GROUP_BY       │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│         PROJECTION        │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│           UNION           ├───────────────────────────────────────────┐                                           
+└─────────────┬─────────────┘                                           │                                                                        
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│         PROJECTION        │                             │         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            tid            │                             │            tid            │                             
+└─────────────┬─────────────┘                             └─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│         HASH_JOIN         │                             │         HASH_JOIN         │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│           INNER           │                             │           INNER           │                             
+│ destination = destination │                             │ destination = destination │                             
+│      origin = origin      │                             │      origin = origin      │                             
+│         tid != tid        ├──────────────┐              │         tid != tid        ├──────────────┐              
+│  passengers < passengers  │              │              │  passengers < passengers  │              │              
+│     flights > flights     │              │              │     flights > flights     │              │              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│         EC: 91187         │              │              │         EC: 91187         │              │              
+│        Cost: 91187        │              │              │        Cost: 91187        │              │              
+└─────────────┬─────────────┘              │              └─────────────┬─────────────┘              │                                           
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│             t             ││             t             ││             t             ││             t             │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│           origin          ││           origin          ││           origin          ││           origin          │
+│        destination        ││        destination        ││        destination        ││        destination        │
+│          flights          ││          flights          ││          flights          ││          flights          │
+│         passengers        ││         passengers        ││         passengers        ││         passengers        │
+│            tid            ││            tid            ││            tid            ││            tid            │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│         EC: 91187         ││         EC: 91187         ││         EC: 91187         ││         EC: 91187         │
+└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘                             
+
+
+Exec Plan:
+┌─────────────────────────────────────┐
+│┌───────────────────────────────────┐│
+││    Query Profiling Information    ││
+│└───────────────────────────────────┘│
+└─────────────────────────────────────┘
+EXPLAIN ANALYZE SELECT t1.tid FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid ;
+┌─────────────────────────────────────┐
+│┌───────────────────────────────────┐│
+││         Total Time: 0.118s        ││
+│└───────────────────────────────────┘│
+└─────────────────────────────────────┘
+┌───────────────────────────┐                                                                                       
+│      EXPLAIN_ANALYZE      │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             0             │                                                                                       
+│          (0.00s)          │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│       HASH_GROUP_BY       │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│            909            │                                                                                       
+│          (0.00s)          │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│         PROJECTION        │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             #0            │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│            1756           │                                                                                       
+│          (0.00s)          │                                                                                       
+└─────────────┬─────────────┘                                                                                                                    
+┌─────────────┴─────────────┐                                                                                       
+│           UNION           │                                                                                       
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                                                                                       
+│             0             ├───────────────────────────────────────────┐                                           
+│          (0.00s)          │                                           │                                           
+└─────────────┬─────────────┘                                           │                                                                        
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│         PROJECTION        │                             │         PROJECTION        │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            tid            │                             │            tid            │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│            878            │                             │            878            │                             
+│          (0.00s)          │                             │          (0.00s)          │                             
+└─────────────┬─────────────┘                             └─────────────┬─────────────┘                                                          
+┌─────────────┴─────────────┐                             ┌─────────────┴─────────────┐                             
+│         HASH_JOIN         │                             │         HASH_JOIN         │                             
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │                             
+│           INNER           │                             │           INNER           │                             
+│ destination = destination │                             │ destination = destination │                             
+│      origin = origin      │                             │      origin = origin      │                             
+│         tid != tid        │                             │         tid != tid        │                             
+│  passengers < passengers  │                             │  passengers < passengers  │                             
+│     flights > flights     ├──────────────┐              │     flights > flights     ├──────────────┐              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│         EC: 91187         │              │              │         EC: 91187         │              │              
+│        Cost: 91187        │              │              │        Cost: 91187        │              │              
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │              │              
+│            878            │              │              │            878            │              │              
+│          (0.11s)          │              │              │          (0.10s)          │              │              
+└─────────────┬─────────────┘              │              └─────────────┬─────────────┘              │                                           
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          ││         SEQ_SCAN          │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│             t             ││             t             ││             t             ││             t             │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│           origin          ││           origin          ││           origin          ││           origin          │
+│        destination        ││        destination        ││        destination        ││        destination        │
+│          flights          ││          flights          ││          flights          ││          flights          │
+│         passengers        ││         passengers        ││         passengers        ││         passengers        │
+│            tid            ││            tid            ││            tid            ││            tid            │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│         EC: 91187         ││         EC: 91187         ││         EC: 91187         ││         EC: 91187         │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│           91187           ││           91187           ││           91187           ││           91187           │
+│          (0.00s)          ││          (0.00s)          ││          (0.00s)          ││          (0.00s)          │
+└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘└───────────────────────────┘                             

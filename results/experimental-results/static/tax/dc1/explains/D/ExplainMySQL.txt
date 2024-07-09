@@ -1,0 +1,22 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid ;
+
+Explain:
+(1, 'PRIMARY', 't1', None, 'ALL', None, None, None, None, 996503, 100.0, None)
+(1, 'PRIMARY', 't2', None, 'ALL', None, None, None, None, 996503, 8.1, 'Using where; Using join buffer (hash join)')
+(2, 'UNION', 't1', None, 'ALL', None, None, None, None, 996503, 100.0, None)
+(2, 'UNION', 't2', None, 'ALL', None, None, None, None, 996503, 8.1, 'Using where; Using join buffer (hash join)')
+(3, 'UNION RESULT', '<union1,2>', None, 'ALL', None, None, None, None, None, None, 'Using temporary')
+
+Exec Plan:
+-> Table scan on <union temporary>  (cost=215e+9..217e+9 rows=161e+9) (actual time=28965..28966 rows=9669 loops=1)
+    -> Union materialize with deduplication  (cost=215e+9..215e+9 rows=161e+9) (actual time=28965..28965 rows=9669 loops=1)
+        -> Filter: ((t1.city <> t2.city) and (t1.tid <> t2.tid))  (cost=99.3e+9 rows=80.4e+9) (actual time=849..14654 rows=18918 loops=1)
+            -> Inner hash join (t2.zip = t1.zip)  (cost=99.3e+9 rows=80.4e+9) (actual time=845..7104 rows=43.9e+6 loops=1)
+                -> Table scan on t2  (cost=0.521 rows=996503) (actual time=0.0278..560 rows=999962 loops=1)
+                -> Hash
+                    -> Table scan on t1  (cost=102558 rows=996503) (actual time=0.957..668 rows=999962 loops=1)
+        -> Filter: ((t1.city <> t2.city) and (t1.tid <> t2.tid))  (cost=99.3e+9 rows=80.4e+9) (actual time=738..14296 rows=18918 loops=1)
+            -> Inner hash join (t2.zip = t1.zip)  (cost=99.3e+9 rows=80.4e+9) (actual time=734..6889 rows=43.9e+6 loops=1)
+                -> Table scan on t2  (cost=0.521 rows=996503) (actual time=0.0236..567 rows=999962 loops=1)
+                -> Hash
+                    -> Table scan on t1  (cost=102558 rows=996503) (actual time=0.0242..559 rows=999962 loops=1)

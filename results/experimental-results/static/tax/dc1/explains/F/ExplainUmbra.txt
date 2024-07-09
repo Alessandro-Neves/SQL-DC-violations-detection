@@ -1,0 +1,32 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid LIMIT 1;
+
+Explain:
+         sort
+         card 1
+
+     join (hash)
+     card 40'781'224
+     zip19 = ...
+
+tablescan    tablescan
+t            t
+card 999'962 card 999'962
+tid isn...   tid isn...
+
+Exec Plan:
+           sort
+           card     1
+           estimate 1
+           time 0 
+
+       join (hash)
+       card             64
+       estimate 40'781'224
+       zip19 = ...
+
+tablescan        tablescan
+t                t
+card     999'962 card       6'460
+estimate 999'962 estimate 999'962
+time 96 ***      time 4 
+tid isn...       tid isn...

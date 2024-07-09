@@ -1,0 +1,14 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid;
+
+Explain:
+           groupby
+           card 1
+
+       join (hash)
+       card 2'824'653
+       job17 = ...
+
+tablescan      tablescan
+t              t
+card 2'175'743 card 2'175'743
+lot isn...     job joi...

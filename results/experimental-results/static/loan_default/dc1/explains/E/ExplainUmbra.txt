@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid);
+
+Explain:
+                   union
+                   card 246'033
+
+  leftsemi join (hash)      leftsemi join (hash)
+  card 136'685              card 136'685
+  loan_amount = loa...      loan_amount37 = l...
+
+tablescan    tablescan    tablescan    tablescan
+t            t            t            t
+card 255'347 card 255'347 card 255'347 card 255'347
+tid isn...   tid isn...

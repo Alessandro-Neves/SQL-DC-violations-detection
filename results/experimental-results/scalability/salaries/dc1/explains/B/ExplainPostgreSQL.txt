@@ -1,0 +1,27 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid;
+
+Explain:
+('Aggregate  (cost=1417568.19..1417568.20 rows=1 width=8)',)
+('  ->  Nested Loop  (cost=0.00..1415829.69 rows=695402 width=0)',)
+('        Join Filter: ((t1.base_pay > t2.base_pay) AND (t1.overtime_pay > t2.overtime_pay) AND (t1.other_pay > t2.other_pay) AND (t1.total_pay < t2.total_pay) AND (t1.tid <> t2.tid))',)
+('        ->  Seq Scan on t t1  (cost=0.00..273.24 rows=7524 width=40)',)
+('        ->  Materialize  (cost=0.00..310.86 rows=7524 width=40)',)
+('              ->  Seq Scan on t t2  (cost=0.00..273.24 rows=7524 width=40)',)
+('JIT:',)
+('  Functions: 8',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Aggregate  (cost=1417568.19..1417568.20 rows=1 width=8) (actual time=10906.312..10906.313 rows=1 loops=1)
+  ->  Nested Loop  (cost=0.00..1415829.69 rows=695402 width=0) (actual time=858.771..10906.243 rows=51 loops=1)
+        Join Filter: ((t1.base_pay > t2.base_pay) AND (t1.overtime_pay > t2.overtime_pay) AND (t1.other_pay > t2.other_pay) AND (t1.total_pay < t2.total_pay) AND (t1.tid <> t2.tid))
+        Rows Removed by Join Filter: 99999949
+        ->  Seq Scan on t t1  (cost=0.00..273.24 rows=7524 width=40) (actual time=0.024..2.733 rows=10000 loops=1)
+        ->  Materialize  (cost=0.00..310.86 rows=7524 width=40) (actual time=0.022..0.480 rows=10000 loops=10000)
+              ->  Seq Scan on t t2  (cost=0.00..273.24 rows=7524 width=40) (actual time=219.091..220.974 rows=10000 loops=1)
+Planning Time: 0.090 ms
+JIT:
+  Functions: 8
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 0.935 ms, Inlining 82.998 ms, Optimization 81.583 ms, Emission 54.551 ms, Total 220.066 ms
+Execution Time: 10907.395 ms

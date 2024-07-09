@@ -1,0 +1,12 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.total_pay > t2.total_pay_benefits AND t1.total_pay_benefits < t2.total_pay AND t1.tid <> t2.tid;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 100000, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 100000, 10.0, 'Using where; Using join buffer (hash join)')
+
+Exec Plan:
+-> Filter: ((t1.total_pay > t2.total_pay_benefits) and (t1.total_pay_benefits < t2.total_pay) and (t1.tid <> t2.tid))  (cost=1e+9 rows=1e+9) (actual time=88.9..1.12e+6 rows=1944 loops=1)
+    -> Inner hash join (no condition)  (cost=1e+9 rows=1e+9) (actual time=70.6..574075 rows=10e+9 loops=1)
+        -> Table scan on t2  (cost=0.01 rows=100000) (actual time=0.0174..103 rows=100000 loops=1)
+        -> Hash
+            -> Table scan on t1  (cost=10000 rows=100000) (actual time=0.0181..55.1 rows=100000 loops=1)

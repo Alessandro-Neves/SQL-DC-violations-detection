@@ -1,0 +1,13 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 1312538, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 1312538, 1.0, 'Using where; Using join buffer (hash join)')
+
+Exec Plan:
+-> Aggregate: count(0)  (cost=174e+9 rows=1) (actual time=3590..3590 rows=1 loops=1)
+    -> Filter: ((t1.coolant > t2.coolant) and (t1.stator_tooth < t2.stator_tooth) and (t1.tid <> t2.tid))  (cost=172e+9 rows=17.2e+9) (actual time=1377..3590 rows=6628 loops=1)
+        -> Inner hash join (t2.pm = t1.pm)  (cost=172e+9 rows=17.2e+9) (actual time=1087..3522 rows=1.35e+6 loops=1)
+            -> Table scan on t2  (cost=0.678 rows=1.31e+6) (actual time=0.0256..1327 rows=1.32e+6 loops=1)
+            -> Hash
+                -> Table scan on t1  (cost=136603 rows=1.31e+6) (actual time=0.782..863 rows=1.32e+6 loops=1)

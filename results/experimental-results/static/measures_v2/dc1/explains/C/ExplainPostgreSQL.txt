@@ -1,0 +1,48 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.coolant, t2.coolant, t1.stator_tooth, t2.stator_tooth, t1.pm, t2.pm HAVING t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid;
+
+Explain:
+('Group  (cost=181768445.94..296311960.08 rows=961709969 width=64)',)
+('  Group Key: t1.tid, t2.tid, t1.coolant, t2.coolant, t1.stator_tooth, t2.stator_tooth, t1.pm',)
+('  ->  Gather Merge  (cost=181768445.94..282287023.04 rows=801424974 width=64)',)
+('        Workers Planned: 2',)
+('        ->  Group  (cost=181767445.92..189781695.66 rows=400712487 width=64)',)
+('              Group Key: t1.tid, t2.tid, t1.coolant, t2.coolant, t1.stator_tooth, t2.stator_tooth, t1.pm',)
+('              ->  Sort  (cost=181767445.92..182769227.13 rows=400712487 width=64)',)
+('                    Sort Key: t1.tid, t2.tid, t1.coolant, t2.coolant, t1.stator_tooth, t2.stator_tooth, t1.pm',)
+('                    ->  Parallel Hash Join  (cost=29720.68..64246248.22 rows=400712487 width=64)',)
+('                          Hash Cond: (t1.pm = t2.pm)',)
+('                          Join Filter: ((t1.coolant > t2.coolant) AND (t1.stator_tooth < t2.stator_tooth) AND (t1.tid <> t2.tid))',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..19093.86 rows=549586 width=32)',)
+('                          ->  Parallel Hash  (cost=19093.86..19093.86 rows=549586 width=32)',)
+('                                ->  Parallel Seq Scan on t t2  (cost=0.00..19093.86 rows=549586 width=32)',)
+('JIT:',)
+('  Functions: 17',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Group  (cost=181768445.94..296311960.08 rows=961709969 width=64) (actual time=968.357..1008.184 rows=6628 loops=1)
+  Group Key: t1.tid, t2.tid, t1.coolant, t2.coolant, t1.stator_tooth, t2.stator_tooth, t1.pm
+  ->  Gather Merge  (cost=181768445.94..282287023.04 rows=801424974 width=64) (actual time=968.350..1006.557 rows=6628 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        ->  Group  (cost=181767445.92..189781695.66 rows=400712487 width=64) (actual time=945.754..946.426 rows=2209 loops=3)
+              Group Key: t1.tid, t2.tid, t1.coolant, t2.coolant, t1.stator_tooth, t2.stator_tooth, t1.pm
+              ->  Sort  (cost=181767445.92..182769227.13 rows=400712487 width=64) (actual time=945.737..945.890 rows=2209 loops=3)
+                    Sort Key: t1.tid, t2.tid, t1.coolant, t2.coolant, t1.stator_tooth, t2.stator_tooth, t1.pm
+                    Sort Method: quicksort  Memory: 209kB
+                    Worker 0:  Sort Method: quicksort  Memory: 212kB
+                    Worker 1:  Sort Method: quicksort  Memory: 342kB
+                    ->  Parallel Hash Join  (cost=29720.68..64246248.22 rows=400712487 width=64) (actual time=760.762..944.711 rows=2209 loops=3)
+                          Hash Cond: (t1.pm = t2.pm)
+                          Join Filter: ((t1.coolant > t2.coolant) AND (t1.stator_tooth < t2.stator_tooth) AND (t1.tid <> t2.tid))
+                          Rows Removed by Join Filter: 447329
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..19093.86 rows=549586 width=32) (actual time=0.033..63.064 rows=439637 loops=3)
+                          ->  Parallel Hash  (cost=19093.86..19093.86 rows=549586 width=32) (actual time=556.191..556.192 rows=439637 loops=3)
+                                Buckets: 131072  Batches: 16  Memory Usage: 6240kB
+                                ->  Parallel Seq Scan on t t2  (cost=0.00..19093.86 rows=549586 width=32) (actual time=358.382..432.869 rows=439637 loops=3)
+Planning Time: 0.180 ms
+JIT:
+  Functions: 47
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 3.630 ms, Inlining 300.231 ms, Optimization 426.696 ms, Emission 348.380 ms, Total 1078.937 ms
+Execution Time: 1009.741 ms

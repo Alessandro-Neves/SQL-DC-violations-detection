@@ -1,0 +1,37 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid;
+
+Explain:
+('Gather  (cost=13585.72..15808.43 rows=7597 width=16)',)
+('  Workers Planned: 1',)
+('  ->  Merge Join  (cost=12585.72..14048.73 rows=4469 width=16)',)
+('        Merge Cond: ((t1.origin = t2.origin) AND (t1.destination = t2.destination))',)
+('        Join Filter: ((t1.flights > t2.flights) AND (t1.passengers < t2.passengers) AND (t1.tid <> t2.tid))',)
+('        ->  Sort  (cost=4025.00..4102.10 rows=30841 width=88)',)
+('              Sort Key: t1.origin, t1.destination',)
+('              ->  Parallel Seq Scan on t t1  (cost=0.00..1725.41 rows=30841 width=88)',)
+('        ->  Materialize  (cost=8560.72..8822.86 rows=52429 width=88)',)
+('              ->  Sort  (cost=8560.72..8691.79 rows=52429 width=88)',)
+('                    Sort Key: t2.origin, t2.destination',)
+('                    ->  Seq Scan on t t2  (cost=0.00..1941.29 rows=52429 width=88)',)
+
+Exec Plan:
+Gather  (cost=13585.72..15808.43 rows=7597 width=16) (actual time=308.494..787.525 rows=878 loops=1)
+  Workers Planned: 1
+  Workers Launched: 1
+  ->  Merge Join  (cost=12585.72..14048.73 rows=4469 width=16) (actual time=272.834..704.538 rows=439 loops=2)
+        Merge Cond: ((t1.origin = t2.origin) AND (t1.destination = t2.destination))
+        Join Filter: ((t1.flights > t2.flights) AND (t1.passengers < t2.passengers) AND (t1.tid <> t2.tid))
+        Rows Removed by Join Filter: 2566760
+        ->  Sort  (cost=4025.00..4102.10 rows=30841 width=88) (actual time=65.498..69.372 rows=45594 loops=2)
+              Sort Key: t1.origin, t1.destination
+              Sort Method: quicksort  Memory: 3987kB
+              Worker 0:  Sort Method: quicksort  Memory: 3459kB
+              ->  Parallel Seq Scan on t t1  (cost=0.00..1725.41 rows=30841 width=88) (actual time=0.012..8.423 rows=45594 loops=2)
+        ->  Materialize  (cost=8560.72..8822.86 rows=52429 width=88) (actual time=126.691..248.365 rows=2574970 loops=2)
+              ->  Sort  (cost=8560.72..8691.79 rows=52429 width=88) (actual time=126.686..142.635 rows=91186 loops=2)
+                    Sort Key: t2.origin, t2.destination
+                    Sort Method: external merge  Disk: 3760kB
+                    Worker 0:  Sort Method: external merge  Disk: 3760kB
+                    ->  Seq Scan on t t2  (cost=0.00..1941.29 rows=52429 width=88) (actual time=0.026..13.108 rows=91187 loops=2)
+Planning Time: 0.072 ms
+Execution Time: 788.858 ms

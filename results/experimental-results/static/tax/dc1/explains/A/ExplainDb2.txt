@@ -1,0 +1,11 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 6, 4, 3, 39, 37, 873445), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 6, 4, 3, 39, 37, 873445), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 513704.3125, 'SELECT Q2.TID AS "ID1", Q1.TID AS "ID2" FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q2.TID <> Q1.TID) AND (Q2.ZIP = Q1.ZIP) AND (VARCHAR(Q2.CITY) <> VARCHAR(Q1.CITY))', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 6, 4, 3, 39, 37, 873445), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 513704.3125, 94442.7734375, 3351017160704.0, 513704.3125, 513704.3125, 94442.7734375, 3351017160704.0, 0.0, 0.0, 48506.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 3, 39, 37, 873445), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'HSJOIN', 513704.3125, 94442.7734375, 3351017160704.0, 513704.3125, 513704.3125, 94442.7734375, 3351017160704.0, 0.0, 0.0, 48506.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 3, 39, 37, 873445), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'TBSCAN', 24677.236328125, 27962.0, 509763552.0, 6.769941806793213, 24677.232421875, 27962.0, 509725952.0, 0.0, 0.0, 27962.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 3, 39, 37, 873445), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 24677.236328125, 27962.0, 509763552.0, 6.769941806793213, 24677.232421875, 27962.0, 509725952.0, 0.0, 0.0, 27962.0, 0.0, 0.0)

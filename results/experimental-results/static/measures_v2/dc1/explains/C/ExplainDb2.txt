@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.coolant, t2.coolant, t1.stator_tooth, t2.stator_tooth, t1.pm, t2.pm HAVING t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 9, 57, 679420), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.coolant, t2.coolant, t1.stator_tooth, t2.stator_tooth, t1.pm, t2.pm HAVING t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 9, 57, 679420), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 9026635776.0, 'SELECT Q4.$C0 AS "ID1", Q4.$C1 AS "ID2" FROM (SELECT Q3.$C0, Q3.$C1 FROM (SELECT Q2.TID, Q1.TID, Q2.COOLANT, Q1.COOLANT, Q2.STATOR_TOOTH, Q1.STATOR_T ... (94 characters truncated) ... M) AND (Q2.STATOR_TOOTH < Q1.STATOR_TOOTH) AND (Q1.COOLANT < Q2.COOLANT)) AS Q3 GROUP BY Q3.PM, Q3.$C5, Q3.$C4, Q3.$C3, Q3.$C2, Q3.$C1, Q3.$C0) AS Q4', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 9, 57, 679420), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 9026635776.0, 2332762880.0, 1154909055483904.0, 7998414336.0, 1029869824.0, 1166312704.0, 29488272375808.0, 0.0, 0.0, 1166312704.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 9, 57, 679420), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'GRPBY ', 9026635776.0, 2332762880.0, 1154909055483904.0, 7998414336.0, 1029869824.0, 1166312704.0, 29488272375808.0, 0.0, 0.0, 1166312704.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 9, 57, 679420), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'TBSCAN', 9026460672.0, 2332762880.0, 1153053495394304.0, 7998414336.0, 1029694528.0, 1166312704.0, 27632775200768.0, 0.0, 0.0, 1166312704.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 9, 57, 679420), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'SORT  ', 7996766720.0, 1166450176.0, 1125420682444800.0, 7996766720.0, 0.0, 1166312704.0, 0.0, 0.0, 0.0, 1166376448.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 9, 57, 679420), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 5, 'HSJOIN', 14112077.0, 137429.3125, 145742500986880.0, 14112077.0, 14112077.0, 137429.3125, 145742500986880.0, 0.0, 0.0, 63757.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 9, 57, 679420), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 6, 'TBSCAN', 21363.27734375, 23993.0, 2419373824.0, 6.769941806793213, 21363.2734375, 23993.0, 2419336192.0, 0.0, 0.0, 23993.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 4, 9, 57, 679420), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 7, 'TBSCAN', 21363.27734375, 23993.0, 2419373824.0, 6.769941806793213, 21363.2734375, 23993.0, 2419336192.0, 0.0, 0.0, 23993.0, 0.0, 0.0)

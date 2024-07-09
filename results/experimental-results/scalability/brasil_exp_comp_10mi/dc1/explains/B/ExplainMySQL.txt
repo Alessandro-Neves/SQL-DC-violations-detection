@@ -1,0 +1,13 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 993654, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 993654, 1.0, 'Using where; Using join buffer (hash join)')
+
+Exec Plan:
+-> Aggregate: count(0)  (cost=99.7e+9 rows=1) (actual time=147913..147913 rows=1 loops=1)
+    -> Filter: ((t1.co_unid < t2.co_unid) and (t1.co_via > t2.co_via) and (t1.tid <> t2.tid))  (cost=98.7e+9 rows=9.87e+9) (actual time=14197..147910 rows=11178 loops=1)
+        -> Inner hash join (t2.co_ncm = t1.co_ncm)  (cost=98.7e+9 rows=9.87e+9) (actual time=4180..82233 rows=922e+6 loops=1)
+            -> Table scan on t2  (cost=0.687 rows=993654) (actual time=60.5..7351 rows=1e+6 loops=1)
+            -> Hash
+                -> Table scan on t1  (cost=104615 rows=993654) (actual time=2.58..3903 rows=1e+6 loops=1)

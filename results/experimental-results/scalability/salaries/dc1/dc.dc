@@ -1,0 +1,1 @@
+t1.base_pay > t2.base_pay,t1.overtime_pay > t2.overtime_pay,t1.other_pay > t2.other_pay,t1.total_pay < t2.total_pay

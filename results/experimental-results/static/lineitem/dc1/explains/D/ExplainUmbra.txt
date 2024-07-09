@@ -1,0 +1,20 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid ;
+
+Explain:
+                union
+                card 305'878
+
+   pipelinebreakerscan    pipelinebreakerscan
+   card 1'552'507         card 1'552'507
+
+     temp
+     card 1'552'507
+
+     join (hash)
+     card 1'552'507
+     tax15 = ...
+
+tablescan    tablescan
+t            t
+card 152'939 card 152'939
+tid isn...   tid isn...

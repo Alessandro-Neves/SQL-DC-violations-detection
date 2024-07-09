@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid);
+
+Explain:
+                   union
+                   card 275'279
+
+  leftsemi join (hash)      leftsemi join (hash)
+  card 152'933              card 152'933
+  tax = tax15 & qua...      tax37 = tax26 & q...
+
+tablescan    tablescan    tablescan    tablescan
+t            t            t            t
+card 152'939 card 152'939 card 152'939 card 152'939
+tid isn...   tid isn...

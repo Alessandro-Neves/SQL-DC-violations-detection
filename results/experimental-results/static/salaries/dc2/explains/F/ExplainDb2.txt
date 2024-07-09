@@ -1,0 +1,11 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.total_pay > t2.total_pay_benefits AND t1.total_pay_benefits < t2.total_pay AND t1.tid <> t2.tid LIMIT 1;
+
+EXPLAIN STATEMENT:
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 28, 12, 157267), 'SYSSH200', 'NULLID  ', '', 'O', 1, 4, 1, '                    ', 'S ', 'N', 'N', 0.0, 'SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.total_pay > t2.total_pay_benefits AND t1.total_pay_benefits < t2.total_pay AND t1.tid <> t2.tid LIMIT 1', None, 1, None)
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 28, 12, 157267), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, '                    ', 'S ', 'N', 'N', 213751.28125, 'SELECT Q3.ID1 AS "ID1", Q3.ID2 AS "ID2" FROM (SELECT Q1.TID, Q2.TID FROM DB2INST1.T AS Q1, DB2INST1.T AS Q2 WHERE (Q2.TOTAL_PAY_BENEFITS < Q1.TOTAL_PAY) AND (Q1.TOTAL_PAY_BENEFITS < Q2.TOTAL_PAY) AND (Q1.TID <> Q2.TID)) AS Q3', None, 1, None)
+
+EXPLAIN OPERATOR:
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 28, 12, 157267), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 1, 'RETURN', 213751.28125, 9242.0, 2176457900032.0, 14.771055221557617, 209676.703125, 4621.0, 2176429326336.0, 0.0, 0.0, 9242.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 28, 12, 157267), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 2, 'NLJOIN', 213751.28125, 9242.0, 2176457900032.0, 14.771055221557617, 209676.703125, 4621.0, 2176429326336.0, 0.0, 0.0, 9242.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 28, 12, 157267), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 3, 'TBSCAN', 4079.10009765625, 4621.0, 76321896.0, 6.769941806793213, 4.510174751281738, 0.0, 47742448.0, 0.0, 0.0, 4621.0, 0.0, 0.0)
+('DB2INST1', datetime.datetime(2024, 6, 4, 8, 28, 12, 157267), 'SYSSH200', 'NULLID  ', '', 'P', 1, 4, 4, 'TBSCAN', 4082.005859375, 4621.0, 107080128.0, 8.001113891601562, 7.415870666503906, 0.0, 78500688.0, 0.0, 0.0, 4621.0, 0.0, 0.0)

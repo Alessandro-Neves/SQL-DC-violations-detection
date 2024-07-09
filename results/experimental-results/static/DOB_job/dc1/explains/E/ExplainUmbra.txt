@@ -1,0 +1,14 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid);
+
+Explain:
+                      union
+                      card 2'778'898
+
+    leftsemi join (hash)          leftsemi join (hash)
+    card 1'541'617                card 1'546'048
+    job = job17 & tid...          job47 = job32 & t...
+
+tablescan      tablescan      tablescan      tablescan
+t              t              t              t
+card 2'175'743 card 2'175'743 card 2'180'001 card 2'180'001
+lot isn...     job joi...

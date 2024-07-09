@@ -1,0 +1,48 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.city, t2.city, t1.zip, t2.zip HAVING t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid;
+
+Explain:
+('Group  (cost=274543217.63..475885486.67 rows=1784094941 width=96)',)
+('  Group Key: t1.tid, t2.tid, t1.city, t2.city, t1.zip',)
+('  ->  Gather Merge  (cost=274543217.63..457301164.37 rows=1486745784 width=96)',)
+('        Workers Planned: 2',)
+('        ->  Group  (cost=274542217.60..285692810.98 rows=743372892 width=96)',)
+('              Group Key: t1.tid, t2.tid, t1.city, t2.city, t1.zip',)
+('              ->  Sort  (cost=274542217.60..276400649.83 rows=743372892 width=96)',)
+('                    Sort Key: t1.tid, t2.tid, t1.city, t2.city, t1.zip',)
+('                    ->  Parallel Hash Join  (cost=21168.24..12558512.12 rows=743372892 width=96)',)
+('                          Hash Cond: (t1.zip = t2.zip)',)
+('                          Join Filter: ((t1.city <> t2.city) AND (t1.tid <> t2.tid))',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..15842.44 rows=250144 width=48)',)
+('                          ->  Parallel Hash  (cost=15842.44..15842.44 rows=250144 width=48)',)
+('                                ->  Parallel Seq Scan on t t2  (cost=0.00..15842.44 rows=250144 width=48)',)
+('JIT:',)
+('  Functions: 17',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Group  (cost=274543217.63..475885486.67 rows=1784094941 width=96) (actual time=3023.976..3057.270 rows=18918 loops=1)
+  Group Key: t1.tid, t2.tid, t1.city, t2.city, t1.zip
+  ->  Gather Merge  (cost=274543217.63..457301164.37 rows=1486745784 width=96) (actual time=3023.962..3053.697 rows=18918 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        ->  Group  (cost=274542217.60..285692810.98 rows=743372892 width=96) (actual time=2998.160..3000.447 rows=6306 loops=3)
+              Group Key: t1.tid, t2.tid, t1.city, t2.city, t1.zip
+              ->  Sort  (cost=274542217.60..276400649.83 rows=743372892 width=96) (actual time=2998.142..2998.711 rows=6306 loops=3)
+                    Sort Key: t1.tid, t2.tid, t1.city, t2.city, t1.zip
+                    Sort Method: quicksort  Memory: 801kB
+                    Worker 0:  Sort Method: quicksort  Memory: 628kB
+                    Worker 1:  Sort Method: quicksort  Memory: 601kB
+                    ->  Parallel Hash Join  (cost=21168.24..12558512.12 rows=743372892 width=96) (actual time=671.990..2993.278 rows=6306 loops=3)
+                          Hash Cond: (t1.zip = t2.zip)
+                          Join Filter: ((t1.city <> t2.city) AND (t1.tid <> t2.tid))
+                          Rows Removed by Join Filter: 14626380
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..15842.44 rows=250144 width=48) (actual time=0.035..51.158 rows=333321 loops=3)
+                          ->  Parallel Hash  (cost=15842.44..15842.44 rows=250144 width=48) (actual time=507.166..507.166 rows=333321 loops=3)
+                                Buckets: 131072  Batches: 8  Memory Usage: 8608kB
+                                ->  Parallel Seq Scan on t t2  (cost=0.00..15842.44 rows=250144 width=48) (actual time=358.717..417.284 rows=333321 loops=3)
+Planning Time: 0.143 ms
+JIT:
+  Functions: 47
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 4.647 ms, Inlining 331.808 ms, Optimization 444.303 ms, Emission 300.203 ms, Total 1080.961 ms
+Execution Time: 3059.492 ms

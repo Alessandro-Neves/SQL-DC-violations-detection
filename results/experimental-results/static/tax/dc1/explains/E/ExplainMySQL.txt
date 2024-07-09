@@ -1,0 +1,20 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid);
+
+Explain:
+(1, 'PRIMARY', 't1', None, 'ALL', None, None, None, None, 995495, 100.0, None)
+(1, 'PRIMARY', 't2', None, 'ALL', None, None, None, None, 995495, 8.1, 'Using where; FirstMatch(t1); Using join buffer (hash join)')
+(3, 'UNION', 't2', None, 'ALL', None, None, None, None, 995495, 100.0, None)
+(3, 'UNION', 't1', None, 'ALL', None, None, None, None, 995495, 8.1, 'Using where; FirstMatch(t2); Using join buffer (hash join)')
+(5, 'UNION RESULT', '<union1,3>', None, 'ALL', None, None, None, None, None, None, 'Using temporary')
+
+Exec Plan:
+-> Table scan on <union temporary>  (cost=214e+9..216e+9 rows=161e+9) (actual time=24411..24412 rows=9669 loops=1)
+    -> Union materialize with deduplication  (cost=214e+9..214e+9 rows=161e+9) (actual time=24411..24411 rows=9669 loops=1)
+        -> Hash semijoin (t2.zip = t1.zip), extra conditions: (t1.city <> t2.city) and (t1.tid <> t2.tid)  (cost=99.1e+9 rows=80.3e+9) (actual time=888..12410 rows=9669 loops=1)
+            -> Table scan on t1  (cost=102240 rows=995495) (actual time=0.025..566 rows=999962 loops=1)
+            -> Hash
+                -> Table scan on t2  (cost=36453 rows=995495) (actual time=0.644..685 rows=999962 loops=1)
+        -> Hash semijoin (t1.zip = t2.zip), extra conditions: (t1.city <> t2.city) and (t1.tid <> t2.tid)  (cost=99.1e+9 rows=80.3e+9) (actual time=754..11991 rows=9669 loops=1)
+            -> Table scan on t2  (cost=102240 rows=995495) (actual time=0.0269..563 rows=999962 loops=1)
+            -> Hash
+                -> Table scan on t1  (cost=36453 rows=995495) (actual time=0.0393..568 rows=999962 loops=1)

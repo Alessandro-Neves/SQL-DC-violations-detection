@@ -1,0 +1,12 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.coolant > t2.coolant AND t1.stator_tooth < t2.stator_tooth AND t1.pm = t2.pm AND t1.tid <> t2.tid;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 1312795, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 1312795, 1.0, 'Using where; Using join buffer (hash join)')
+
+Exec Plan:
+-> Filter: ((t1.coolant > t2.coolant) and (t1.stator_tooth < t2.stator_tooth) and (t1.tid <> t2.tid))  (cost=172e+9 rows=17.2e+9) (actual time=1366..3240 rows=6628 loops=1)
+    -> Inner hash join (t2.pm = t1.pm)  (cost=172e+9 rows=17.2e+9) (actual time=1103..3174 rows=1.35e+6 loops=1)
+        -> Table scan on t2  (cost=0.616 rows=1.31e+6) (actual time=4.49..968 rows=1.32e+6 loops=1)
+        -> Hash
+            -> Table scan on t1  (cost=136137 rows=1.31e+6) (actual time=0.71..878 rows=1.32e+6 loops=1)

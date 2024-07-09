@@ -1,0 +1,14 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid;
+
+Explain:
+         groupby
+         card 1
+
+     join (hash)
+     card 40'781'224
+     zip19 = ...
+
+tablescan    tablescan
+t            t
+card 999'962 card 999'962
+tid isn...   tid isn...

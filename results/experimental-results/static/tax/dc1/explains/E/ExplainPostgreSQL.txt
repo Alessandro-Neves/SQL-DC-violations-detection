@@ -1,0 +1,56 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid);
+
+Explain:
+('Unique  (cost=222866.36..225868.08 rows=600344 width=8)',)
+('  ->  Sort  (cost=222866.36..224367.22 rows=600344 width=8)',)
+('        Sort Key: t1.tid',)
+('        ->  Gather  (cost=22168.24..157036.06 rows=600344 width=8)',)
+('              Workers Planned: 2',)
+('              ->  Parallel Append  (cost=21168.24..96001.66 rows=250144 width=8)',)
+('                    ->  Parallel Hash Semi Join  (cost=21168.24..47375.47 rows=125072 width=8)',)
+('                          Hash Cond: (t1.zip = t2.zip)',)
+('                          Join Filter: ((t1.city <> t2.city) AND (t1.tid <> t2.tid))',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..15842.44 rows=250144 width=48)',)
+('                          ->  Parallel Hash  (cost=15842.44..15842.44 rows=250144 width=48)',)
+('                                ->  Parallel Seq Scan on t t2  (cost=0.00..15842.44 rows=250144 width=48)',)
+('                    ->  Parallel Hash Semi Join  (cost=21168.24..47375.47 rows=125072 width=8)',)
+('                          Hash Cond: (t2_1.zip = t1_1.zip)',)
+('                          Join Filter: ((t1_1.city <> t2_1.city) AND (t1_1.tid <> t2_1.tid))',)
+('                          ->  Parallel Seq Scan on t t2_1  (cost=0.00..15842.44 rows=250144 width=48)',)
+('                          ->  Parallel Hash  (cost=15842.44..15842.44 rows=250144 width=48)',)
+('                                ->  Parallel Seq Scan on t t1_1  (cost=0.00..15842.44 rows=250144 width=48)',)
+('JIT:',)
+('  Functions: 23',)
+('  Options: Inlining false, Optimization false, Expressions true, Deforming true',)
+
+Exec Plan:
+Unique  (cost=222866.36..225868.08 rows=600344 width=8) (actual time=6470.316..6520.476 rows=9669 loops=1)
+  ->  Sort  (cost=222866.36..224367.22 rows=600344 width=8) (actual time=6470.313..6515.217 rows=19338 loops=1)
+        Sort Key: t1.tid
+        Sort Method: quicksort  Memory: 769kB
+        ->  Gather  (cost=22168.24..157036.06 rows=600344 width=8) (actual time=705.513..6507.545 rows=19338 loops=1)
+              Workers Planned: 2
+              Workers Launched: 2
+              ->  Parallel Append  (cost=21168.24..96001.66 rows=250144 width=8) (actual time=680.183..6437.828 rows=6446 loops=3)
+                    ->  Parallel Hash Semi Join  (cost=21168.24..47375.47 rows=125072 width=8) (actual time=237.204..2516.387 rows=3223 loops=3)
+                          Hash Cond: (t1.zip = t2.zip)
+                          Join Filter: ((t1.city <> t2.city) AND (t1.tid <> t2.tid))
+                          Rows Removed by Join Filter: 14509420
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..15842.44 rows=250144 width=48) (actual time=0.021..129.845 rows=999962 loops=1)
+                          ->  Parallel Hash  (cost=15842.44..15842.44 rows=250144 width=48) (actual time=121.351..121.352 rows=333321 loops=3)
+                                Buckets: 131072  Batches: 8  Memory Usage: 8608kB
+                                ->  Parallel Seq Scan on t t2  (cost=0.00..15842.44 rows=250144 width=48) (actual time=13.857..149.274 rows=999962 loops=1)
+                    ->  Parallel Hash Semi Join  (cost=21168.24..47375.47 rows=125072 width=8) (actual time=673.411..5880.062 rows=4834 loops=2)
+                          Hash Cond: (t2_1.zip = t1_1.zip)
+                          Join Filter: ((t1_1.city <> t2_1.city) AND (t1_1.tid <> t2_1.tid))
+                          Rows Removed by Join Filter: 21753096
+                          ->  Parallel Seq Scan on t t2_1  (cost=0.00..15842.44 rows=250144 width=48) (actual time=0.026..121.868 rows=499981 loops=2)
+                          ->  Parallel Hash  (cost=15842.44..15842.44 rows=250144 width=48) (actual time=361.914..361.915 rows=499981 loops=2)
+                                Buckets: 131072  Batches: 8  Memory Usage: 8608kB
+                                ->  Parallel Seq Scan on t t1_1  (cost=0.00..15842.44 rows=250144 width=48) (actual time=22.761..175.808 rows=499981 loops=2)
+Planning Time: 0.122 ms
+JIT:
+  Functions: 67
+  Options: Inlining false, Optimization false, Expressions true, Deforming true
+  Timing: Generation 3.743 ms, Inlining 0.000 ms, Optimization 2.428 ms, Emission 57.111 ms, Total 63.282 ms
+Execution Time: 6522.240 ms

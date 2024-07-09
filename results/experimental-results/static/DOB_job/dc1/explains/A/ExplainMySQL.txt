@@ -1,0 +1,12 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 2182950, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 2182950, 2.7, 'Using where; Using join buffer (hash join)')
+
+Exec Plan:
+-> Filter: ((t1.borough <> t2.borough) and (t1.lot > t2.lot) and (t1.tid <> t2.tid))  (cost=477e+9 rows=129e+9) (actual time=2666..8980 rows=14783 loops=1)
+    -> Inner hash join (t2.job = t1.job)  (cost=477e+9 rows=129e+9) (actual time=2483..8228 rows=4.49e+6 loops=1)
+        -> Table scan on t2  (cost=5.21 rows=2.18e+6) (actual time=9.88..2113 rows=2.18e+6 loops=1)
+        -> Hash
+            -> Table scan on t1  (cost=234731 rows=2.18e+6) (actual time=0.598..1881 rows=2.18e+6 loops=1)

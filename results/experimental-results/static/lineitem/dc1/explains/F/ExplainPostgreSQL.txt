@@ -1,0 +1,23 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid LIMIT 1;
+
+Explain:
+('Limit  (cost=6756.60..6847.33 rows=1 width=16)',)
+('  ->  Hash Join  (cost=6756.60..5872421.55 rows=64653 width=16)',)
+('        Hash Cond: ((t1.quantity = t2.quantity) AND (t1.tax = t2.tax))',)
+('        Join Filter: ((t1.discount < t2.discount) AND (t1.price > t2.price) AND (t1.tid <> t2.tid))',)
+('        ->  Seq Scan on t t1  (cost=0.00..3267.44 rows=152944 width=40)',)
+('        ->  Hash  (cost=3267.44..3267.44 rows=152944 width=40)',)
+('              ->  Seq Scan on t t2  (cost=0.00..3267.44 rows=152944 width=40)',)
+
+Exec Plan:
+Limit  (cost=6756.60..6847.33 rows=1 width=16) (actual time=65.904..65.906 rows=1 loops=1)
+  ->  Hash Join  (cost=6756.60..5872421.55 rows=64653 width=16) (actual time=65.903..65.904 rows=1 loops=1)
+        Hash Cond: ((t1.quantity = t2.quantity) AND (t1.tax = t2.tax))
+        Join Filter: ((t1.discount < t2.discount) AND (t1.price > t2.price) AND (t1.tid <> t2.tid))
+        Rows Removed by Join Filter: 1318
+        ->  Seq Scan on t t1  (cost=0.00..3267.44 rows=152944 width=40) (actual time=0.021..0.180 rows=1192 loops=1)
+        ->  Hash  (cost=3267.44..3267.44 rows=152944 width=40) (actual time=64.677..64.678 rows=152939 loops=1)
+              Buckets: 131072  Batches: 2  Memory Usage: 6414kB
+              ->  Seq Scan on t t2  (cost=0.00..3267.44 rows=152944 width=40) (actual time=0.005..25.885 rows=152939 loops=1)
+Planning Time: 0.073 ms
+Execution Time: 66.931 ms

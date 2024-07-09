@@ -1,0 +1,24 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid;
+
+Explain:
+       join (hash)
+       card 6.148957e+10
+       co_ncm19...
+
+tablescan       tablescan
+t               t
+card 10'000'000 card 10'000'000
+tid isn...      tid isn...
+
+Exec Plan:
+         join (hash)
+         card          100'171
+         estimate 6.148957e+10
+         co_ncm19...
+
+tablescan           tablescan
+t                   t
+card     10'000'000 card     10'000'000
+estimate 10'000'000 estimate 10'000'000
+time 0              time 100 ***
+tid isn...          tid isn...

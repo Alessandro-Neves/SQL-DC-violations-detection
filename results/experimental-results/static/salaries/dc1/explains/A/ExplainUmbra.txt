@@ -1,0 +1,11 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.base_pay > t2.base_pay AND t1.overtime_pay > t2.overtime_pay AND t1.other_pay > t2.other_pay AND t1.total_pay < t2.total_pay AND t1.tid <> t2.tid;
+
+Explain:
+    join (bnl)
+    card 3.076170e+09
+    overtim...
+
+tablescan    tablescan
+t            t
+card 100'000 card 100'000
+tid isn...   tid isn...

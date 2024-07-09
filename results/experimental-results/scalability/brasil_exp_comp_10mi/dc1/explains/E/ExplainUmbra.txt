@@ -1,0 +1,32 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid);
+
+Explain:
+                      union
+                      card 1'644'679
+
+    leftsemi join (hash)          leftsemi join (hash)
+    card 1'000'000                card 1'000'000
+    co_ncm = co_ncm19 &           co_ncm49 = co_ncm...
+
+tablescan      tablescan      tablescan      tablescan
+t              t              t              t
+card 1'000'000 card 1'000'000 card 1'000'000 card 1'000'000
+tid isn...     tid isn...
+
+Exec Plan:
+                            union
+                            card         9'859
+                            estimate 1'644'679
+                            time 0 
+
+        leftsemi join (hash)                  leftsemi join (hash)
+        card            24                    card         9'835
+        estimate 1'000'000                    estimate 1'000'000
+        co_ncm = co_ncm19 &                   co_ncm49 = co_ncm...
+
+tablescan          tablescan          tablescan          tablescan
+t                  t                  t                  t
+card     1'000'000 card     1'000'000 card     1'000'000 card     1'000'000
+estimate 1'000'000 estimate 1'000'000 estimate 1'000'000 estimate 1'000'000
+time 0             time 50 ***        time 0             time 50 ***
+tid isn...         tid isn...

@@ -1,0 +1,43 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid);
+
+Explain:
+('HashAggregate  (cost=459815657.17..459815879.41 rows=22224 width=8)',)
+('  Group Key: t1.tid',)
+('  ->  Append  (cost=0.00..459815601.61 rows=22224 width=8)',)
+('        ->  Nested Loop Semi Join  (cost=0.00..229907745.25 rows=11112 width=8)',)
+('              Join Filter: ((t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime) AND (t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime) AND (t1.tid <> t2.tid))',)
+('              ->  Seq Scan on t t1  (cost=0.00..1637.09 rows=100009 width=24)',)
+('              ->  Materialize  (cost=0.00..2723.14 rows=100009 width=24)',)
+('                    ->  Seq Scan on t t2  (cost=0.00..1637.09 rows=100009 width=24)',)
+('        ->  Nested Loop Semi Join  (cost=0.00..229907745.25 rows=11112 width=8)',)
+('              Join Filter: ((t1_1.tpep_pickup_datetime > t2_1.tpep_dropoff_datetime) AND (t1_1.tpep_dropoff_datetime < t2_1.tpep_pickup_datetime) AND (t1_1.tid <> t2_1.tid))',)
+('              ->  Seq Scan on t t2_1  (cost=0.00..1637.09 rows=100009 width=24)',)
+('              ->  Materialize  (cost=0.00..2723.14 rows=100009 width=24)',)
+('                    ->  Seq Scan on t t1_1  (cost=0.00..1637.09 rows=100009 width=24)',)
+('JIT:',)
+('  Functions: 16',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+HashAggregate  (cost=459815657.17..459815879.41 rows=22224 width=8) (actual time=2274913.730..2274913.907 rows=886 loops=1)
+  Group Key: t1.tid
+  Batches: 1  Memory Usage: 849kB
+  ->  Append  (cost=0.00..459815601.61 rows=22224 width=8) (actual time=312.821..2274908.944 rows=1772 loops=1)
+        ->  Nested Loop Semi Join  (cost=0.00..229907745.25 rows=11112 width=8) (actual time=312.820..1142628.335 rows=886 loops=1)
+              Join Filter: ((t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime) AND (t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime) AND (t1.tid <> t2.tid))
+              Rows Removed by Join Filter: 9949458977
+              ->  Seq Scan on t t1  (cost=0.00..1637.09 rows=100009 width=24) (actual time=0.013..30.867 rows=100000 loops=1)
+              ->  Materialize  (cost=0.00..2723.14 rows=100009 width=24) (actual time=0.004..7.324 rows=99495 loops=100000)
+                    ->  Seq Scan on t t2  (cost=0.00..1637.09 rows=100009 width=24) (actual time=209.054..220.224 rows=100000 loops=1)
+        ->  Nested Loop Semi Join  (cost=0.00..229907745.25 rows=11112 width=8) (actual time=98.437..1132279.582 rows=886 loops=1)
+              Join Filter: ((t1_1.tpep_pickup_datetime > t2_1.tpep_dropoff_datetime) AND (t1_1.tpep_dropoff_datetime < t2_1.tpep_pickup_datetime) AND (t1_1.tid <> t2_1.tid))
+              Rows Removed by Join Filter: 9949458977
+              ->  Seq Scan on t t2_1  (cost=0.00..1637.09 rows=100009 width=24) (actual time=0.008..30.963 rows=100000 loops=1)
+              ->  Materialize  (cost=0.00..2723.14 rows=100009 width=24) (actual time=0.002..7.350 rows=99495 loops=100000)
+                    ->  Seq Scan on t t1_1  (cost=0.00..1637.09 rows=100009 width=24) (actual time=0.020..7.755 rows=100000 loops=1)
+Planning Time: 0.091 ms
+JIT:
+  Functions: 19
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 0.701 ms, Inlining 63.708 ms, Optimization 88.118 ms, Emission 57.301 ms, Total 209.829 ms
+Execution Time: 2274920.624 ms

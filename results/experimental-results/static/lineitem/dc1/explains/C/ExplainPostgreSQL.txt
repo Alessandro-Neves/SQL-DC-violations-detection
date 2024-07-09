@@ -1,0 +1,51 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.quantity, t2.quantity, t1.tax, t2.tax, t1.discount, t2.discount, t1.price, t2.price HAVING t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid;
+
+Explain:
+('Group  (cost=46671.85..52566.66 rows=64653 width=80)',)
+('  Group Key: t1.tid, t2.tid, t1.quantity, t1.tax, t1.discount, t2.discount, t1.price, t2.price',)
+('  ->  Gather Merge  (cost=46671.85..51806.04 rows=38031 width=80)',)
+('        Workers Planned: 1',)
+('        ->  Group  (cost=45671.84..46527.54 rows=38031 width=80)',)
+('              Group Key: t1.tid, t2.tid, t1.quantity, t1.tax, t1.discount, t2.discount, t1.price, t2.price',)
+('              ->  Sort  (cost=45671.84..45766.92 rows=38031 width=80)',)
+('                    Sort Key: t1.tid, t2.tid, t1.quantity, t1.tax, t1.discount, t2.discount, t1.price, t2.price',)
+('                    ->  Merge Join  (cost=33121.59..42778.66 rows=38031 width=80)',)
+('                          Merge Cond: ((t1.quantity = t2.quantity) AND (t1.tax = t2.tax))',)
+('                          Join Filter: ((t1.discount < t2.discount) AND (t1.price > t2.price) AND (t1.tid <> t2.tid))',)
+('                          ->  Sort  (cost=12501.15..12726.07 rows=89967 width=40)',)
+('                                Sort Key: t1.quantity, t1.tax',)
+('                                ->  Parallel Seq Scan on t t1  (cost=0.00..2637.67 rows=89967 width=40)',)
+('                          ->  Materialize  (cost=20620.44..21385.16 rows=152944 width=40)',)
+('                                ->  Sort  (cost=20620.44..21002.80 rows=152944 width=40)',)
+('                                      Sort Key: t2.quantity, t2.tax',)
+('                                      ->  Seq Scan on t t2  (cost=0.00..3267.44 rows=152944 width=40)',)
+
+Exec Plan:
+Group  (cost=46671.85..52566.66 rows=64653 width=80) (actual time=351.542..351.988 rows=1010 loops=1)
+  Group Key: t1.tid, t2.tid, t1.quantity, t1.tax, t1.discount, t2.discount, t1.price, t2.price
+  ->  Gather Merge  (cost=46671.85..51806.04 rows=38031 width=80) (actual time=351.541..351.829 rows=1010 loops=1)
+        Workers Planned: 1
+        Workers Launched: 1
+        ->  Group  (cost=45671.84..46527.54 rows=38031 width=80) (actual time=304.730..304.864 rows=505 loops=2)
+              Group Key: t1.tid, t2.tid, t1.quantity, t1.tax, t1.discount, t2.discount, t1.price, t2.price
+              ->  Sort  (cost=45671.84..45766.92 rows=38031 width=80) (actual time=304.728..304.753 rows=505 loops=2)
+                    Sort Key: t1.tid, t2.tid, t1.quantity, t1.tax, t1.discount, t2.discount, t1.price, t2.price
+                    Sort Method: quicksort  Memory: 68kB
+                    Worker 0:  Sort Method: quicksort  Memory: 83kB
+                    ->  Merge Join  (cost=33121.59..42778.66 rows=38031 width=80) (actual time=184.805..304.447 rows=505 loops=2)
+                          Merge Cond: ((t1.quantity = t2.quantity) AND (t1.tax = t2.tax))
+                          Join Filter: ((t1.discount < t2.discount) AND (t1.price > t2.price) AND (t1.tid <> t2.tid))
+                          Rows Removed by Join Filter: 185172
+                          ->  Sort  (cost=12501.15..12726.07 rows=89967 width=40) (actual time=63.642..74.115 rows=76470 loops=2)
+                                Sort Key: t1.quantity, t1.tax
+                                Sort Method: external merge  Disk: 2920kB
+                                Worker 0:  Sort Method: external merge  Disk: 4584kB
+                                ->  Parallel Seq Scan on t t1  (cost=0.00..2637.67 rows=89967 width=40) (actual time=0.016..16.679 rows=76470 loops=2)
+                          ->  Materialize  (cost=20620.44..21385.16 rows=152944 width=40) (actual time=121.116..173.993 rows=223853 loops=2)
+                                ->  Sort  (cost=20620.44..21002.80 rows=152944 width=40) (actual time=121.113..149.675 rows=152939 loops=2)
+                                      Sort Key: t2.quantity, t2.tax
+                                      Sort Method: external merge  Disk: 7496kB
+                                      Worker 0:  Sort Method: external merge  Disk: 7496kB
+                                      ->  Seq Scan on t t2  (cost=0.00..3267.44 rows=152944 width=40) (actual time=0.023..28.399 rows=152939 loops=2)
+Planning Time: 0.191 ms
+Execution Time: 354.062 ms

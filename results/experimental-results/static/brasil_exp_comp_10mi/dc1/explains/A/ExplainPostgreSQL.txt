@@ -1,0 +1,33 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid;
+
+Explain:
+('Gather  (cost=258276.35..6599764257.07 rows=39578015894 width=16)',)
+('  Workers Planned: 2',)
+('  ->  Parallel Hash Join  (cost=257276.35..2641961667.67 rows=16490839956 width=16)',)
+('        Hash Cond: (t1.co_ncm = t2.co_ncm)',)
+('        Join Filter: ((t1.co_unid < t2.co_unid) AND (t1.co_via > t2.co_via) AND (t1.tid <> t2.tid))',)
+('        ->  Parallel Seq Scan on t t1  (cost=0.00..189103.60 rows=3525660 width=32)',)
+('        ->  Parallel Hash  (cost=189103.60..189103.60 rows=3525660 width=32)',)
+('              ->  Parallel Seq Scan on t t2  (cost=0.00..189103.60 rows=3525660 width=32)',)
+('JIT:',)
+('  Functions: 12',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Gather  (cost=258276.35..6599764257.07 rows=39578015894 width=16) (actual time=99698.573..2203405.461 rows=100171 loops=1)
+  Workers Planned: 2
+  Workers Launched: 2
+  ->  Parallel Hash Join  (cost=257276.35..2641961667.67 rows=16490839956 width=16) (actual time=205012.297..1380082.761 rows=33390 loops=3)
+        Hash Cond: (t1.co_ncm = t2.co_ncm)
+        Join Filter: ((t1.co_unid < t2.co_unid) AND (t1.co_via > t2.co_via) AND (t1.tid <> t2.tid))
+        Rows Removed by Join Filter: 30706678039
+        ->  Parallel Seq Scan on t t1  (cost=0.00..189103.60 rows=3525660 width=32) (actual time=4.719..4644.294 rows=3333333 loops=3)
+        ->  Parallel Hash  (cost=189103.60..189103.60 rows=3525660 width=32) (actual time=13955.117..13955.120 rows=3333333 loops=3)
+              Buckets: 131072 (originally 131072)  Batches: 512 (originally 128)  Memory Usage: 8576kB
+              ->  Parallel Seq Scan on t t2  (cost=0.00..189103.60 rows=3525660 width=32) (actual time=267.883..6892.650 rows=3333333 loops=3)
+Planning Time: 0.105 ms
+JIT:
+  Functions: 36
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 4.748 ms, Inlining 254.897 ms, Optimization 258.728 ms, Emission 288.464 ms, Total 806.837 ms
+Execution Time: 2203476.696 ms

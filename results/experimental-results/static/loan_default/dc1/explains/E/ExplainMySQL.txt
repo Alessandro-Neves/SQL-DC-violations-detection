@@ -1,0 +1,20 @@
+Query:	SELECT t1.tid FROM t t1 WHERE EXISTS ( SELECT 1 FROM t t2 WHERE t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid) UNION SELECT t2.tid FROM t t2 WHERE EXISTS ( SELECT 1 FROM t t1 WHERE t1.age > t2.age AND t1.income = t2.income AND t1.loan_amount = t2.loan_amount AND t1.loan_term < t2.loan_term AND t1.tid <> t2.tid);
+
+Explain:
+(1, 'PRIMARY', 't1', None, 'ALL', None, None, None, None, 255347, 100.0, None)
+(1, 'PRIMARY', 't2', None, 'ALL', None, None, None, None, 255347, 0.1, 'Using where; FirstMatch(t1); Using join buffer (hash join)')
+(3, 'UNION', 't2', None, 'ALL', None, None, None, None, 255347, 100.0, None)
+(3, 'UNION', 't1', None, 'ALL', None, None, None, None, 255347, 0.1, 'Using where; FirstMatch(t2); Using join buffer (hash join)')
+(5, 'UNION RESULT', '<union1,3>', None, 'ALL', None, None, None, None, None, None, 'Using temporary')
+
+Exec Plan:
+-> Table scan on <union temporary>  (cost=13.1e+9..13.1e+9 rows=130e+6) (actual time=1054..1055 rows=12305 loops=1)
+    -> Union materialize with deduplication  (cost=13.1e+9..13.1e+9 rows=130e+6) (actual time=1054..1054 rows=12305 loops=1)
+        -> Hash semijoin (t2.loan_amount = t1.loan_amount), (t2.income = t1.income), extra conditions: (t1.age > t2.age) and (t1.loan_term < t2.loan_term) and (t1.tid <> t2.tid)  (cost=6.52e+9 rows=65.2e+6) (actual time=203..524 rows=6228 loops=1)
+            -> Table scan on t1  (cost=25535 rows=255347) (actual time=0.0224..153 rows=255347 loops=1)
+            -> Hash
+                -> Table scan on t2  (cost=0.0358 rows=255347) (actual time=0.0199..152 rows=255347 loops=1)
+        -> Hash semijoin (t1.loan_amount = t2.loan_amount), (t1.income = t2.income), extra conditions: (t1.age > t2.age) and (t1.loan_term < t2.loan_term) and (t1.tid <> t2.tid)  (cost=6.52e+9 rows=65.2e+6) (actual time=206..526 rows=6162 loops=1)
+            -> Table scan on t2  (cost=25535 rows=255347) (actual time=0.0235..152 rows=255347 loops=1)
+            -> Hash
+                -> Table scan on t1  (cost=0.0358 rows=255347) (actual time=0.0222..154 rows=255347 loops=1)

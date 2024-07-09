@@ -1,0 +1,41 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.quantity = t2.quantity AND t1.tax = t2.tax AND t1.discount < t2.discount AND t1.price > t2.price AND t1.tid <> t2.tid;
+
+Explain:
+('Finalize Aggregate  (cost=43873.85..43873.86 rows=1 width=8)',)
+('  ->  Gather  (cost=43873.73..43873.84 rows=1 width=8)',)
+('        Workers Planned: 1',)
+('        ->  Partial Aggregate  (cost=42873.73..42873.74 rows=1 width=8)',)
+('              ->  Merge Join  (cost=33121.59..42778.66 rows=38031 width=0)',)
+('                    Merge Cond: ((t1.quantity = t2.quantity) AND (t1.tax = t2.tax))',)
+('                    Join Filter: ((t1.discount < t2.discount) AND (t1.price > t2.price) AND (t1.tid <> t2.tid))',)
+('                    ->  Sort  (cost=12501.15..12726.07 rows=89967 width=40)',)
+('                          Sort Key: t1.quantity, t1.tax',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..2637.67 rows=89967 width=40)',)
+('                    ->  Materialize  (cost=20620.44..21385.16 rows=152944 width=40)',)
+('                          ->  Sort  (cost=20620.44..21002.80 rows=152944 width=40)',)
+('                                Sort Key: t2.quantity, t2.tax',)
+('                                ->  Seq Scan on t t2  (cost=0.00..3267.44 rows=152944 width=40)',)
+
+Exec Plan:
+Finalize Aggregate  (cost=43873.85..43873.86 rows=1 width=8) (actual time=347.323..350.051 rows=1 loops=1)
+  ->  Gather  (cost=43873.73..43873.84 rows=1 width=8) (actual time=334.441..350.041 rows=2 loops=1)
+        Workers Planned: 1
+        Workers Launched: 1
+        ->  Partial Aggregate  (cost=42873.73..42873.74 rows=1 width=8) (actual time=336.221..336.223 rows=1 loops=2)
+              ->  Merge Join  (cost=33121.59..42778.66 rows=38031 width=0) (actual time=194.318..336.145 rows=505 loops=2)
+                    Merge Cond: ((t1.quantity = t2.quantity) AND (t1.tax = t2.tax))
+                    Join Filter: ((t1.discount < t2.discount) AND (t1.price > t2.price) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 185172
+                    ->  Sort  (cost=12501.15..12726.07 rows=89967 width=40) (actual time=70.126..81.885 rows=76470 loops=2)
+                          Sort Key: t1.quantity, t1.tax
+                          Sort Method: external merge  Disk: 3496kB
+                          Worker 0:  Sort Method: external merge  Disk: 4000kB
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..2637.67 rows=89967 width=40) (actual time=0.017..19.588 rows=76470 loops=2)
+                    ->  Materialize  (cost=20620.44..21385.16 rows=152944 width=40) (actual time=124.154..185.920 rows=222295 loops=2)
+                          ->  Sort  (cost=20620.44..21002.80 rows=152944 width=40) (actual time=124.150..156.269 rows=152937 loops=2)
+                                Sort Key: t2.quantity, t2.tax
+                                Sort Method: external merge  Disk: 7496kB
+                                Worker 0:  Sort Method: external merge  Disk: 7496kB
+                                ->  Seq Scan on t t2  (cost=0.00..3267.44 rows=152944 width=40) (actual time=0.021..32.756 rows=152939 loops=2)
+Planning Time: 0.147 ms
+Execution Time: 352.919 ms

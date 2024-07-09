@@ -1,0 +1,20 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.origin = t2.origin AND t1.destination = t2.destination AND t1.flights > t2.flights AND t1.passengers < t2.passengers AND t1.tid <> t2.tid ;
+
+Explain:
+               union
+               card 182'374
+
+  pipelinebreakerscan   pipelinebreakerscan
+  card 20'125'285       card 20'125'285
+
+    temp
+    card 20'125'285
+
+    join (hash)
+    card 20'125'285
+    destinat...
+
+tablescan   tablescan
+t           t
+card 91'187 card 91'187
+tid isn...  tid isn...

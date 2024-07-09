@@ -1,0 +1,33 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.total_pay > t2.total_pay_benefits AND t1.total_pay_benefits < t2.total_pay AND t1.tid <> t2.tid;
+
+Explain:
+(0, 'Init', 0, 24, 0, None, 0, None)
+(1, 'OpenRead', 0, 2, 0, '10', 0, None)
+(2, 'OpenRead', 1, 2, 0, '10', 0, None)
+(3, 'Rewind', 0, 23, 0, None, 0, None)
+(4, 'Rewind', 1, 23, 0, None, 0, None)
+(5, 'Column', 0, 8, 1, None, 0, None)
+(6, 'RealAffinity', 1, 0, 0, None, 0, None)
+(7, 'Column', 1, 9, 2, None, 0, None)
+(8, 'RealAffinity', 2, 0, 0, None, 0, None)
+(9, 'Le', 2, 21, 1, 'BINARY-8', 83, None)
+(10, 'Column', 0, 9, 2, None, 0, None)
+(11, 'RealAffinity', 2, 0, 0, None, 0, None)
+(12, 'Column', 1, 8, 1, None, 0, None)
+(13, 'RealAffinity', 1, 0, 0, None, 0, None)
+(14, 'Ge', 1, 21, 2, 'BINARY-8', 83, None)
+(15, 'Column', 0, 0, 1, None, 0, None)
+(16, 'Column', 1, 0, 2, None, 0, None)
+(17, 'Eq', 2, 21, 1, 'BINARY-8', 83, None)
+(18, 'Column', 0, 0, 3, None, 0, None)
+(19, 'Column', 1, 0, 4, None, 0, None)
+(20, 'ResultRow', 3, 2, 0, None, 0, None)
+(21, 'Next', 1, 5, 0, None, 1, None)
+(22, 'Next', 0, 4, 0, None, 1, None)
+(23, 'Halt', 0, 0, 0, None, 0, None)
+(24, 'Transaction', 0, 0, 3115, '0', 1, None)
+(25, 'Goto', 0, 1, 0, None, 0, None)
+
+Exec Plan:
+(3, 0, 0, 'SCAN t1')
+(5, 0, 0, 'SCAN t2')

@@ -1,0 +1,32 @@
+Query:	SELECT COUNT(*) FROM t t1 JOIN t t2 ON t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid;
+
+Explain:
+           groupby
+           card 1
+
+      join (hash)
+      card 603'947'093
+      co_ncm19...
+
+tablescan      tablescan
+t              t
+card 1'000'000 card 1'000'000
+tid isn...     tid isn...
+
+Exec Plan:
+             groupby
+             card     1
+             estimate 1
+             time 0 
+
+        join (hash)
+        card          11'178
+        estimate 603'947'093
+        co_ncm19...
+
+tablescan          tablescan
+t                  t
+card     1'000'000 card     1'000'000
+estimate 1'000'000 estimate 1'000'000
+time 0             time 100 ***
+tid isn...         tid isn...

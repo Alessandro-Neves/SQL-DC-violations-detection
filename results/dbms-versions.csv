@@ -1,0 +1,8 @@
+Engine,Version
+DuckDB,"0.8.1"
+SQL Server,"Developer Edition SQL Server 2022 (RTM-CU12-GDR) (KB5036343) - 16.0.4120.1 (X64)"
+Umbra,"PostgreSQL 12.2 compatible umbra v0.1-938-g4c6cbd2cb"
+PostgreSQL,"16.2"
+MySQL,"8.3.0"
+SQLite,"3.37.2"
+Db2,"11.5.9.0"

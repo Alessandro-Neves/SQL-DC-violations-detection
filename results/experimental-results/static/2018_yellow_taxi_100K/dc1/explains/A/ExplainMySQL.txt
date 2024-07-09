@@ -1,0 +1,12 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime AND t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime AND t1.tid <> t2.tid;
+
+Explain:
+(1, 'SIMPLE', 't1', None, 'ALL', None, None, None, None, 100000, 100.0, None)
+(1, 'SIMPLE', 't2', None, 'ALL', None, None, None, None, 100000, 10.0, 'Using where; Using join buffer (hash join)')
+
+Exec Plan:
+-> Filter: ((t1.tpep_pickup_datetime > t2.tpep_dropoff_datetime) and (t1.tpep_dropoff_datetime < t2.tpep_pickup_datetime) and (t1.tid <> t2.tid))  (cost=1e+9 rows=1e+9) (actual time=32660..1.02e+6 rows=1748 loops=1)
+    -> Inner hash join (no condition)  (cost=1e+9 rows=1e+9) (actual time=64.3..444278 rows=10e+9 loops=1)
+        -> Table scan on t2  (cost=0.01 rows=100000) (actual time=0.0148..95.6 rows=100000 loops=1)
+        -> Hash
+            -> Table scan on t1  (cost=10000 rows=100000) (actual time=0.0183..50 rows=100000 loops=1)

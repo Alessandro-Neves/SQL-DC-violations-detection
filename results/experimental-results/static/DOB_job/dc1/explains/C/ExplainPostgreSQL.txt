@@ -1,0 +1,48 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.job, t2.job, t1.borough, t2.borough, t1.lot, t2.lot HAVING t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid;
+
+Explain:
+('Group  (cost=262460780.92..436073613.64 rows=1457657320 width=112)',)
+('  Group Key: t1.tid, t2.tid, t1.job, t1.borough, t2.borough, t1.lot, t2.lot',)
+('  ->  Gather Merge  (cost=262460780.92..414816111.05 rows=1214714434 width=112)',)
+('        Workers Planned: 2',)
+('        ->  Group  (cost=262459780.89..274606925.23 rows=607357217 width=112)',)
+('              Group Key: t1.tid, t2.tid, t1.job, t1.borough, t2.borough, t1.lot, t2.lot',)
+('              ->  Sort  (cost=262459780.89..263978173.93 rows=607357217 width=112)',)
+('                    Sort Key: t1.tid, t2.tid, t1.job, t1.borough, t2.borough, t1.lot, t2.lot',)
+('                    ->  Parallel Hash Join  (cost=47447.54..32689421.47 rows=607357217 width=112)',)
+('                          Hash Cond: (t1.job = t2.job)',)
+('                          Join Filter: ((t1.borough <> t2.borough) AND (t1.lot > t2.lot) AND (t1.tid <> t2.tid))',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..38727.24 rows=391624 width=56)',)
+('                          ->  Parallel Hash  (cost=38727.24..38727.24 rows=391624 width=56)',)
+('                                ->  Parallel Seq Scan on t t2  (cost=0.00..38727.24 rows=391624 width=56)',)
+('JIT:',)
+('  Functions: 17',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Group  (cost=262460780.92..436073613.64 rows=1457657320 width=112) (actual time=1839.936..1922.933 rows=14783 loops=1)
+  Group Key: t1.tid, t2.tid, t1.job, t1.borough, t2.borough, t1.lot, t2.lot
+  ->  Gather Merge  (cost=262460780.92..414816111.05 rows=1214714434 width=112) (actual time=1839.929..1919.883 rows=14783 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        ->  Group  (cost=262459780.89..274606925.23 rows=607357217 width=112) (actual time=1803.601..1805.546 rows=4928 loops=3)
+              Group Key: t1.tid, t2.tid, t1.job, t1.borough, t2.borough, t1.lot, t2.lot
+              ->  Sort  (cost=262459780.89..263978173.93 rows=607357217 width=112) (actual time=1803.584..1804.039 rows=4928 loops=3)
+                    Sort Key: t1.tid, t2.tid, t1.job, t1.borough, t2.borough, t1.lot, t2.lot
+                    Sort Method: quicksort  Memory: 774kB
+                    Worker 0:  Sort Method: quicksort  Memory: 580kB
+                    Worker 1:  Sort Method: quicksort  Memory: 571kB
+                    ->  Parallel Hash Join  (cost=47447.54..32689421.47 rows=607357217 width=112) (actual time=1324.679..1800.986 rows=4928 loops=3)
+                          Hash Cond: (t1.job = t2.job)
+                          Join Filter: ((t1.borough <> t2.borough) AND (t1.lot > t2.lot) AND (t1.tid <> t2.tid))
+                          Rows Removed by Join Filter: 1491947
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..38727.24 rows=391624 width=56) (actual time=0.296..140.429 rows=726667 loops=3)
+                          ->  Parallel Hash  (cost=38727.24..38727.24 rows=391624 width=56) (actual time=931.505..931.506 rows=726667 loops=3)
+                                Buckets: 131072 (originally 131072)  Batches: 32 (originally 16)  Memory Usage: 5728kB
+                                ->  Parallel Seq Scan on t t2  (cost=0.00..38727.24 rows=391624 width=56) (actual time=409.379..595.987 rows=726667 loops=3)
+Planning Time: 0.121 ms
+JIT:
+  Functions: 47
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 4.380 ms, Inlining 317.764 ms, Optimization 541.439 ms, Emission 369.054 ms, Total 1232.637 ms
+Execution Time: 1924.501 ms

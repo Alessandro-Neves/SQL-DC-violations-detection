@@ -1,0 +1,69 @@
+Query:	SELECT t1.tid FROM t t1 JOIN t t2 ON t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid UNION SELECT t2.tid FROM t t1 JOIN t t2 ON t1.job = t2.job AND t1.borough <> t2.borough AND t1.lot > t2.lot AND t1.tid <> t2.tid ;
+
+Explain:
+('Unique  (cost=831897323.20..846473896.40 rows=2915314640 width=8)',)
+('  ->  Sort  (cost=831897323.20..839185609.80 rows=2915314640 width=8)',)
+('        Sort Key: t1.tid',)
+('        ->  Append  (cost=403421.65..214163948.34 rows=2915314640 width=8)',)
+('              ->  Merge Join  (cost=403421.65..99793687.57 rows=1457657320 width=8)',)
+('                    Merge Cond: (t1.job = t2.job)',)
+('                    Join Filter: ((t1.borough <> t2.borough) AND (t1.lot > t2.lot) AND (t1.tid <> t2.tid))',)
+('                    ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56)',)
+('                          Sort Key: t1.job',)
+('                          ->  Seq Scan on t t1  (cost=0.00..44209.97 rows=939897 width=56)',)
+('                    ->  Materialize  (cost=201710.82..206410.31 rows=939897 width=56)',)
+('                          ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56)',)
+('                                Sort Key: t2.job',)
+('                                ->  Seq Scan on t t2  (cost=0.00..44209.97 rows=939897 width=56)',)
+('              ->  Merge Join  (cost=403421.65..99793687.57 rows=1457657320 width=8)',)
+('                    Merge Cond: (t1_1.job = t2_1.job)',)
+('                    Join Filter: ((t1_1.borough <> t2_1.borough) AND (t1_1.lot > t2_1.lot) AND (t1_1.tid <> t2_1.tid))',)
+('                    ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56)',)
+('                          Sort Key: t1_1.job',)
+('                          ->  Seq Scan on t t1_1  (cost=0.00..44209.97 rows=939897 width=56)',)
+('                    ->  Materialize  (cost=201710.82..206410.31 rows=939897 width=56)',)
+('                          ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56)',)
+('                                Sort Key: t2_1.job',)
+('                                ->  Seq Scan on t t2_1  (cost=0.00..44209.97 rows=939897 width=56)',)
+('JIT:',)
+('  Functions: 27',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Unique  (cost=831897323.20..846473896.40 rows=2915314640 width=8) (actual time=8989.528..8994.335 rows=21855 loops=1)
+  ->  Sort  (cost=831897323.20..839185609.80 rows=2915314640 width=8) (actual time=8989.526..8990.829 rows=29566 loops=1)
+        Sort Key: t1.tid
+        Sort Method: quicksort  Memory: 769kB
+        ->  Append  (cost=403421.65..214163948.34 rows=2915314640 width=8) (actual time=2843.628..8984.498 rows=29566 loops=1)
+              ->  Merge Join  (cost=403421.65..99793687.57 rows=1457657320 width=8) (actual time=2843.627..4412.632 rows=14783 loops=1)
+                    Merge Cond: (t1.job = t2.job)
+                    Join Filter: ((t1.borough <> t2.borough) AND (t1.lot > t2.lot) AND (t1.tid <> t2.tid))
+                    Rows Removed by Join Filter: 4475840
+                    ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56) (actual time=1664.164..1919.267 rows=2180001 loops=1)
+                          Sort Key: t1.job
+                          Sort Method: external merge  Disk: 101536kB
+                          ->  Seq Scan on t t1  (cost=0.00..44209.97 rows=939897 width=56) (actual time=362.362..747.936 rows=2180001 loops=1)
+                    ->  Materialize  (cost=201710.82..206410.31 rows=939897 width=56) (actual time=1179.110..1770.049 rows=4490623 loops=1)
+                          ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56) (actual time=1179.106..1435.319 rows=2180001 loops=1)
+                                Sort Key: t2.job
+                                Sort Method: external merge  Disk: 101536kB
+                                ->  Seq Scan on t t2  (cost=0.00..44209.97 rows=939897 width=56) (actual time=0.067..267.369 rows=2180001 loops=1)
+              ->  Merge Join  (cost=403421.65..99793687.57 rows=1457657320 width=8) (actual time=2909.236..4570.035 rows=14783 loops=1)
+                    Merge Cond: (t1_1.job = t2_1.job)
+                    Join Filter: ((t1_1.borough <> t2_1.borough) AND (t1_1.lot > t2_1.lot) AND (t1_1.tid <> t2_1.tid))
+                    Rows Removed by Join Filter: 4475840
+                    ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56) (actual time=1537.374..1809.021 rows=2180001 loops=1)
+                          Sort Key: t1_1.job
+                          Sort Method: external merge  Disk: 101536kB
+                          ->  Seq Scan on t t1_1  (cost=0.00..44209.97 rows=939897 width=56) (actual time=0.030..391.572 rows=2180001 loops=1)
+                    ->  Materialize  (cost=201710.82..206410.31 rows=939897 width=56) (actual time=1371.512..1989.614 rows=4490623 loops=1)
+                          ->  Sort  (cost=201710.82..204060.57 rows=939897 width=56) (actual time=1371.509..1640.023 rows=2180001 loops=1)
+                                Sort Key: t2_1.job
+                                Sort Method: external merge  Disk: 101536kB
+                                ->  Seq Scan on t t2_1  (cost=0.00..44209.97 rows=939897 width=56) (actual time=0.316..332.601 rows=2180001 loops=1)
+Planning Time: 0.158 ms
+JIT:
+  Functions: 27
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 1.064 ms, Inlining 73.179 ms, Optimization 174.656 ms, Emission 114.601 ms, Total 363.500 ms
+Execution Time: 9069.047 ms

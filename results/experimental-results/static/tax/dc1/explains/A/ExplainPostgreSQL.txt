@@ -1,0 +1,37 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1 JOIN t t2 ON t1.city <> t2.city AND t1.zip = t2.zip AND t1.tid <> t2.tid;
+
+Explain:
+('Merge Join  (cost=190866.72..36236781.21 rows=1784094941 width=16)',)
+('  Merge Cond: (t1.zip = t2.zip)',)
+('  Join Filter: ((t1.city <> t2.city) AND (t1.tid <> t2.tid))',)
+('  ->  Sort  (cost=95433.36..96934.22 rows=600345 width=48)',)
+('        Sort Key: t1.zip',)
+('        ->  Seq Scan on t t1  (cost=0.00..19344.45 rows=600345 width=48)',)
+('  ->  Materialize  (cost=95433.36..98435.08 rows=600345 width=48)',)
+('        ->  Sort  (cost=95433.36..96934.22 rows=600345 width=48)',)
+('              Sort Key: t2.zip',)
+('              ->  Seq Scan on t t2  (cost=0.00..19344.45 rows=600345 width=48)',)
+('JIT:',)
+('  Functions: 14',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Merge Join  (cost=190866.72..36236781.21 rows=1784094941 width=16) (actual time=1418.247..7125.890 rows=18918 loops=1)
+  Merge Cond: (t1.zip = t2.zip)
+  Join Filter: ((t1.city <> t2.city) AND (t1.tid <> t2.tid))
+  Rows Removed by Join Filter: 43879140
+  ->  Sort  (cost=95433.36..96934.22 rows=600345 width=48) (actual time=825.784..946.175 rows=999962 loops=1)
+        Sort Key: t1.zip
+        Sort Method: external merge  Disk: 38128kB
+        ->  Seq Scan on t t1  (cost=0.00..19344.45 rows=600345 width=48) (actual time=204.378..338.457 rows=999962 loops=1)
+  ->  Materialize  (cost=95433.36..98435.08 rows=600345 width=48) (actual time=569.014..2456.245 rows=43897989 loops=1)
+        ->  Sort  (cost=95433.36..96934.22 rows=600345 width=48) (actual time=569.010..686.080 rows=999962 loops=1)
+              Sort Key: t2.zip
+              Sort Method: external merge  Disk: 38128kB
+              ->  Seq Scan on t t2  (cost=0.00..19344.45 rows=600345 width=48) (actual time=0.015..95.266 rows=999962 loops=1)
+Planning Time: 0.065 ms
+JIT:
+  Functions: 14
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 0.457 ms, Inlining 70.833 ms, Optimization 81.425 ms, Emission 52.135 ms, Total 204.850 ms
+Execution Time: 7142.423 ms

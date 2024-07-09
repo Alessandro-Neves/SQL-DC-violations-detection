@@ -1,0 +1,48 @@
+Query:	SELECT t1.tid as id1, t2.tid as id2 FROM t t1, t t2 GROUP BY t1.tid, t2.tid, t1.co_ncm, t2.co_ncm, t1.co_unid, t2.co_unid, t1.co_via, t2.co_via HAVING t1.co_ncm = t2.co_ncm AND t1.co_unid < t2.co_unid AND t1.co_via > t2.co_via AND t1.tid <> t2.tid;
+
+Explain:
+('Group  (cost=73779191.46..120920034.06 rows=395795594 width=64)',)
+('  Group Key: t1.tid, t2.tid, t1.co_ncm, t1.co_unid, t2.co_unid, t1.co_via, t2.co_via',)
+('  ->  Gather Merge  (cost=73779191.46..115148014.97 rows=329829662 width=64)',)
+('        Workers Planned: 2',)
+('        ->  Group  (cost=73778191.43..77076488.05 rows=164914831 width=64)',)
+('              Group Key: t1.tid, t2.tid, t1.co_ncm, t1.co_unid, t2.co_unid, t1.co_via, t2.co_via',)
+('              ->  Sort  (cost=73778191.43..74190478.51 rows=164914831 width=64)',)
+('                    Sort Key: t1.tid, t2.tid, t1.co_ncm, t1.co_unid, t2.co_unid, t1.co_via, t2.co_via',)
+('                    ->  Parallel Hash Join  (cost=25728.89..26468012.41 rows=164914831 width=64)',)
+('                          Hash Cond: (t1.co_ncm = t2.co_ncm)',)
+('                          Join Filter: ((t1.co_unid < t2.co_unid) AND (t1.co_via > t2.co_via) AND (t1.tid <> t2.tid))',)
+('                          ->  Parallel Seq Scan on t t1  (cost=0.00..18910.73 rows=352573 width=32)',)
+('                          ->  Parallel Hash  (cost=18910.73..18910.73 rows=352573 width=32)',)
+('                                ->  Parallel Seq Scan on t t2  (cost=0.00..18910.73 rows=352573 width=32)',)
+('JIT:',)
+('  Functions: 17',)
+('  Options: Inlining true, Optimization true, Expressions true, Deforming true',)
+
+Exec Plan:
+Group  (cost=73779191.46..120920034.06 rows=395795594 width=64) (actual time=39700.509..39749.419 rows=11178 loops=1)
+  Group Key: t1.tid, t2.tid, t1.co_ncm, t1.co_unid, t2.co_unid, t1.co_via, t2.co_via
+  ->  Gather Merge  (cost=73779191.46..115148014.97 rows=329829662 width=64) (actual time=39700.491..39746.077 rows=11178 loops=1)
+        Workers Planned: 2
+        Workers Launched: 2
+        ->  Group  (cost=73778191.43..77076488.05 rows=164914831 width=64) (actual time=39669.531..39671.114 rows=3726 loops=3)
+              Group Key: t1.tid, t2.tid, t1.co_ncm, t1.co_unid, t2.co_unid, t1.co_via, t2.co_via
+              ->  Sort  (cost=73778191.43..74190478.51 rows=164914831 width=64) (actual time=39669.504..39669.893 rows=3726 loops=3)
+                    Sort Key: t1.tid, t2.tid, t1.co_ncm, t1.co_unid, t2.co_unid, t1.co_via, t2.co_via
+                    Sort Method: quicksort  Memory: 282kB
+                    Worker 0:  Sort Method: quicksort  Memory: 646kB
+                    Worker 1:  Sort Method: quicksort  Memory: 418kB
+                    ->  Parallel Hash Join  (cost=25728.89..26468012.41 rows=164914831 width=64) (actual time=4969.750..39666.680 rows=3726 loops=3)
+                          Hash Cond: (t1.co_ncm = t2.co_ncm)
+                          Join Filter: ((t1.co_unid < t2.co_unid) AND (t1.co_via > t2.co_via) AND (t1.tid <> t2.tid))
+                          Rows Removed by Join Filter: 307277905
+                          ->  Parallel Seq Scan on t t1  (cost=0.00..18910.73 rows=352573 width=32) (actual time=0.040..63.583 rows=333333 loops=3)
+                          ->  Parallel Hash  (cost=18910.73..18910.73 rows=352573 width=32) (actual time=675.124..675.124 rows=333333 loops=3)
+                                Buckets: 131072 (originally 131072)  Batches: 16 (originally 8)  Memory Usage: 6304kB
+                                ->  Parallel Seq Scan on t t2  (cost=0.00..18910.73 rows=352573 width=32) (actual time=439.310..511.413 rows=333333 loops=3)
+Planning Time: 0.135 ms
+JIT:
+  Functions: 47
+  Options: Inlining true, Optimization true, Expressions true, Deforming true
+  Timing: Generation 4.568 ms, Inlining 355.080 ms, Optimization 564.459 ms, Emission 398.632 ms, Total 1322.740 ms
+Execution Time: 39751.535 ms
