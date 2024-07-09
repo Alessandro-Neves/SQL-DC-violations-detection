@@ -1,0 +1,21 @@
+# docker-compose -f compose-postgres.yml up -d
+# docker rm -f postgres-container
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16.2
+    container_name: postgres-container
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: root
+    ports:
+      - "5100:5432"
+
+# docker exec -it postgres-container bash
+# psql -U postgres_user -d postgres_db -h localhost -p 5432
+# psql -U root -d root -h localhost -p 5432
+
+
+# SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 't';

@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  umbra-database:
+    build:
+      context: .
+      dockerfile: umbra/umbra.dockerfile
+    image: umbra-database-image
+    container_name: umbra-container
+    ports:
+      - "5400:5432"
+
+# docker-compose -f databases/compose-umbra.yml up --remove-orphans -d
+# docker exec -it umbra-database-container psql -h /tmp -U postgres -c "ALTER USER postgres WITH PASSWORD 'postgres'"
+# sudo netstat -tulpn | grep :5900

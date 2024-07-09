@@ -1,0 +1,1 @@
+t1.radius_mean < t2.radius_mean,t1.texture_mean > t2.texture_mean,t1.area_mean > t2.area_mean,t1.radius_worst > t2.radius_worst,t1.texture_worst < t2.texture_worst,t1.area_worst < t2.area_worst

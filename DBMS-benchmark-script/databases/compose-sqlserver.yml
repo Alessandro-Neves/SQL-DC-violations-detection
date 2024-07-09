@@ -1,0 +1,54 @@
+# docker-compose -f compose-sqlserver.yml up --remove-orphans -d
+# docker-compose -f compose-sqlserver.yml up -d
+# docker rm -f sqlserver-container
+
+version: '3'
+services:
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-container
+    hostname: sql1
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Admin_P@ss
+    ports:
+      - "5300:1433"
+
+# docker exec -it nome_do_seu_csqlserver-container /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SuaSenhaDoSA -Q "SELECT SERVERPROPERTY('Edition') AS 'Edition';"
+
+
+# docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Admin_P@ss" -e "MSSQL_PID=Express" -p 1433:1433 -d --name=sql mcr.microsoft.com/mssql/server:latest
+
+
+# docker exec -it sqlserver-container bash
+# /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Admin_P@ss'
+
+# SELECT name FROM sys.tables;
+# SELECT DB_NAME() AS DatabaseName;
+# GO
+
+# USE master;
+# SELECT table_name = t.name FROM sys.tables t INNER JOIN sys.schemas s ON t.schema_id = s.schema_id ORDER BY t.name;
+
+# SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'test';
+# GO
+
+
+# SET SHOWPLAN_ALL ON;
+# GO
+
+# <query without explain alias>
+# GO
+
+# SET SHOWPLAN_ALL OFF;
+# GO
+
+
+# SET STATISTICS PROFILE ON;
+# GO
+
+# <query without explain alias>
+# GO
+
+# SET STATISTICS PROFILE OFF;
+# GO
